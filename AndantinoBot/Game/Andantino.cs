@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -224,27 +225,61 @@ namespace AndantinoBot.Game
                 }
             }
 
-            // Check if the placed stone was in an enclosed area
-            if(!CanReachBorder(placementCord, player))
+            // Check if the active player enclosed the opponent
+            var directionArr = new HexCoordinate[] { HexCoordinate.West, HexCoordinate.NorthWest, HexCoordinate.NorthEast, HexCoordinate.East, HexCoordinate.SouthEast, HexCoordinate.SouthWest };
+            var startIndex = 0;
+            var endIndex = 0;
+
+            if (this[placementCord + directionArr[endIndex]] != player)
             {
-                return player.GetOpponent();
+                endIndex = 5;
+                while (this[placementCord + directionArr[endIndex]] != player && startIndex != endIndex)
+                {
+                    endIndex = (endIndex - 1) % directionArr.Length;
+                }
+            }
+            else
+            {
+                startIndex = 1;
             }
 
-            // Check if the active player enclosed the opponent
-            var neighbors = GetNeighbors(placementCord);
-            for(var i = 0; i < neighbors.Length; i++)
+            // We are sourrounded by empty or enemy tiles
+            if(startIndex == endIndex)
             {
-                var neighbor = neighbors[i];
-                if(this[neighbor] != player && !CanReachBorder(neighbor, player.GetOpponent()))
+                // Check if the placed stone was in an enclosed area
+                if (!CanReachBorder(placementCord, player))
                 {
-                    return player;
+                    return player.GetOpponent();
+                }
+            }
+            else
+            {
+                var prevCouldReachBorder = false;
+                while (startIndex != endIndex)
+                {
+                    var currPosition = placementCord + directionArr[startIndex];
+                    if (this[currPosition] == player)
+                    {
+                        prevCouldReachBorder = false;
+                    }
+                    else if (!prevCouldReachBorder)
+                    {
+                        if (CanReachBorder(currPosition, player.GetOpponent()))
+                        {
+                            prevCouldReachBorder = true;
+                        }
+                        else
+                        {
+                            return player;
+                        }
+                    }
+                    startIndex = (startIndex + 1) % directionArr.Length;
                 }
             }
 
             return Player.None;
         }
 
-        // TODO Reuse closedList
         private bool CanReachBorder(HexCoordinate stoneCord, Player targetPlayer)
         {
             var opponent = targetPlayer.GetOpponent();
