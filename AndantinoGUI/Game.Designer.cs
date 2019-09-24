@@ -28,9 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Drawing.StringFormat stringFormat1 = new System.Drawing.StringFormat();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.hg_board = new AndantinoGUI.HexagonalGrid();
+            System.Drawing.StringFormat stringFormat3 = new System.Drawing.StringFormat();
+            this.printDocument1 = new System.Drawing.Printing.PrintDocument();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.l_active_player = new System.Windows.Forms.Label();
@@ -41,48 +40,23 @@
             this.b_autoplay = new System.Windows.Forms.Button();
             this.b_next_move = new System.Windows.Forms.Button();
             this.b_undo = new System.Windows.Forms.Button();
-            this.printDocument1 = new System.Drawing.Printing.PrintDocument();
-            this.flowLayoutPanel1.SuspendLayout();
+            this.hg_board = new AndantinoGUI.HexagonalGrid();
+            this.lb_black_chains = new System.Windows.Forms.ListBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.lb_white_chains = new System.Windows.Forms.ListBox();
             this.flowLayoutPanel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanel1.Controls.Add(this.hg_board);
-            this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel2);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 12);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1160, 637);
-            this.flowLayoutPanel1.TabIndex = 0;
-            this.flowLayoutPanel1.WrapContents = false;
-            // 
-            // hg_board
-            // 
-            this.hg_board.Location = new System.Drawing.Point(3, 3);
-            this.hg_board.Name = "hg_board";
-            this.hg_board.Radius = 9;
-            this.hg_board.Size = new System.Drawing.Size(739, 614);
-            this.hg_board.TabIndex = 1;
-            this.hg_board.TextFont = new System.Drawing.Font("Arial", 8F);
-            stringFormat1.Alignment = System.Drawing.StringAlignment.Center;
-            stringFormat1.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
-            stringFormat1.LineAlignment = System.Drawing.StringAlignment.Center;
-            stringFormat1.Trimming = System.Drawing.StringTrimming.Character;
-            this.hg_board.TextFormat = stringFormat1;
-            // 
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.Controls.Add(this.groupBox1);
             this.flowLayoutPanel2.Controls.Add(this.groupBox2);
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(748, 3);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(1066, 12);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(357, 614);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(306, 637);
             this.flowLayoutPanel2.TabIndex = 0;
             // 
             // groupBox1
@@ -94,7 +68,7 @@
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(10);
-            this.groupBox1.Size = new System.Drawing.Size(342, 82);
+            this.groupBox1.Size = new System.Drawing.Size(293, 82);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Informations";
@@ -146,14 +120,14 @@
             this.groupBox2.Controls.Add(this.b_undo);
             this.groupBox2.Location = new System.Drawing.Point(3, 91);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(342, 134);
+            this.groupBox2.Size = new System.Drawing.Size(293, 108);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Actions";
             // 
             // b_autoplay
             // 
-            this.b_autoplay.Location = new System.Drawing.Point(215, 61);
+            this.b_autoplay.Location = new System.Drawing.Point(166, 61);
             this.b_autoplay.Name = "b_autoplay";
             this.b_autoplay.Size = new System.Drawing.Size(121, 36);
             this.b_autoplay.TabIndex = 2;
@@ -163,7 +137,7 @@
             // 
             // b_next_move
             // 
-            this.b_next_move.Location = new System.Drawing.Point(215, 19);
+            this.b_next_move.Location = new System.Drawing.Point(166, 19);
             this.b_next_move.Name = "b_next_move";
             this.b_next_move.Size = new System.Drawing.Size(121, 36);
             this.b_next_move.TabIndex = 1;
@@ -182,38 +156,99 @@
             this.b_undo.UseVisualStyleBackColor = true;
             this.b_undo.Click += new System.EventHandler(this.OnUndoClick);
             // 
+            // hg_board
+            // 
+            this.hg_board.Location = new System.Drawing.Point(321, 12);
+            this.hg_board.Name = "hg_board";
+            this.hg_board.Radius = 9;
+            this.hg_board.Size = new System.Drawing.Size(739, 637);
+            this.hg_board.TabIndex = 1;
+            this.hg_board.TextFont = new System.Drawing.Font("Arial", 8F);
+            stringFormat3.Alignment = System.Drawing.StringAlignment.Center;
+            stringFormat3.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
+            stringFormat3.LineAlignment = System.Drawing.StringAlignment.Center;
+            stringFormat3.Trimming = System.Drawing.StringTrimming.Character;
+            this.hg_board.TextFormat = stringFormat3;
+            // 
+            // lb_black_chains
+            // 
+            this.lb_black_chains.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lb_black_chains.FormattingEnabled = true;
+            this.lb_black_chains.ItemHeight = 20;
+            this.lb_black_chains.Location = new System.Drawing.Point(12, 39);
+            this.lb_black_chains.Name = "lb_black_chains";
+            this.lb_black_chains.Size = new System.Drawing.Size(303, 284);
+            this.lb_black_chains.TabIndex = 2;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(12, 12);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(130, 24);
+            this.label3.TabIndex = 3;
+            this.label3.Text = "Black Chains";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(12, 332);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(133, 24);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "White Chains";
+            // 
+            // lb_white_chains
+            // 
+            this.lb_white_chains.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lb_white_chains.FormattingEnabled = true;
+            this.lb_white_chains.ItemHeight = 20;
+            this.lb_white_chains.Location = new System.Drawing.Point(12, 359);
+            this.lb_white_chains.Name = "lb_white_chains";
+            this.lb_white_chains.Size = new System.Drawing.Size(303, 284);
+            this.lb_white_chains.TabIndex = 4;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 661);
-            this.Controls.Add(this.flowLayoutPanel1);
+            this.ClientSize = new System.Drawing.Size(1384, 661);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.lb_white_chains);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.lb_black_chains);
+            this.Controls.Add(this.hg_board);
+            this.Controls.Add(this.flowLayoutPanel2);
             this.Name = "Form1";
             this.Text = "Andantino";
-            this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private HexagonalGrid hg_board;
+        private System.Drawing.Printing.PrintDocument printDocument1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Drawing.Printing.PrintDocument printDocument1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label l_active_player;
         private System.Windows.Forms.Label l_winner;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label l_active_player;
+        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button b_undo;
         private System.Windows.Forms.Button b_autoplay;
         private System.Windows.Forms.Button b_next_move;
+        private System.Windows.Forms.Button b_undo;
+        private HexagonalGrid hg_board;
+        private System.Windows.Forms.ListBox lb_black_chains;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ListBox lb_white_chains;
     }
 }
 

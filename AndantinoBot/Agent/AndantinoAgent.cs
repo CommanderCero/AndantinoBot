@@ -15,9 +15,7 @@ namespace AndantinoBot
 
         public AndantinoAgent(IAndantinoHeuristic heuristic)
         {
-            // 2^k * sizeof(TranspositionEntry) = MemorySize
-            // <=> MemorySize / sizeof(TranspositionEntry)
-            AlphaBetaSearch = new IterativeDeepening(heuristic, new TranspositionTable(20000000));
+            AlphaBetaSearch = new IterativeDeepening(heuristic, null, new TranspositionTable(30000000));
         }
 
         public HexCoordinate GetNextPlay(Andantino state)

@@ -26,15 +26,20 @@ namespace AndantinoBot
 
         public int Length()
         {
-            return Distance(new HexCoordinate(0, 0));
+            return (Math.Abs(Q) + Math.Abs(R) + Math.Abs(S)) / 2;
         }
 
-        public IEnumerable<HexCoordinate> GetNeighbors()
+        public int TwiceLength()
         {
-            var neighbors = new HexCoordinate[HexDirections.Length];
-            for(var i = 0; i < HexDirections.Length; i++)
+            return Math.Abs(Q) + Math.Abs(R) + Math.Abs(S);
+        }
+
+        public IEnumerable<HexCoordinate> GetNeighborsClockwise()
+        {
+            var neighbors = new HexCoordinate[ClockwiseDirections.Length];
+            for(var i = 0; i < ClockwiseDirections.Length; i++)
             {
-                neighbors[i] = HexDirections[i] + this;
+                neighbors[i] = ClockwiseDirections[i] + this;
             }
 
             return neighbors;
@@ -89,7 +94,7 @@ namespace AndantinoBot
         public static HexCoordinate SouthEast { get; } = new HexCoordinate(0, 1);
         public static HexCoordinate SouthWest { get; } = new HexCoordinate(-1, 1);
 
-        public static HexCoordinate[] HexDirections = new HexCoordinate[]
+        public static HexCoordinate[] ClockwiseDirections = new HexCoordinate[]
         {
             West, NorthWest, NorthEast,
             East, SouthEast, SouthWest

@@ -11,6 +11,7 @@ namespace AndantinoBot.Search
     public class IterativeDeepening : IComparer<HexCoordinate>
     {
         public IAndantinoHeuristic Evaluator { get; set; }
+        public IMoveOrderer MoveOrderer { get; set; }
         
         private readonly TranspositionTable transpositionTable;
         private Dictionary<Player, int[,]> historyTable;
@@ -21,9 +22,10 @@ namespace AndantinoBot.Search
         private double averagePruningSteps = 0;
         private int averageCounter = 0;
 
-        public IterativeDeepening(IAndantinoHeuristic evaluator, TranspositionTable transpositionTable)
+        public IterativeDeepening(IAndantinoHeuristic evaluator, IMoveOrderer orderer, TranspositionTable transpositionTable)
         {
             Evaluator = evaluator;
+            MoveOrderer = orderer;
             this.transpositionTable = transpositionTable;
 
             historyTable = new Dictionary<Player, int[,]>();
@@ -37,7 +39,7 @@ namespace AndantinoBot.Search
             watch.Start();
 
             HexCoordinate bestPlay = state.GetValidPlacements()[0];
-            for (var i = 1; watch.ElapsedMilliseconds < (timeLimitMilliseconds-watch.ElapsedMilliseconds); i++)
+            for (var i = 1; watch.ElapsedMilliseconds < timeLimitMilliseconds; i++)
             {
                 bestPlay = GetBestPlay(state, i);
                 Debug.WriteLine($"{i}. Time: {watch.ElapsedMilliseconds} Best Move: {bestPlay} Average Pruning: {averagePruningSteps:0.##} Evaluated Nodes: {evaluatedNodesCount}");
@@ -57,10 +59,13 @@ namespace AndantinoBot.Search
             var beta = int.MaxValue;
 
             var maxValue = int.MinValue + 1;
-            HexCoordinate bestPlay = state.GetValidPlacements()[0];
+            
             var actions = state.GetValidPlacements();
             activePlayer = state.ActivePlayer;
             Array.Sort(actions, this); // Sort according to our history table
+            // actions = MoveOrderer.OrderMoves(state, actions);
+
+            HexCoordinate bestPlay = actions[0];
             for (var i = 0; i < actions.Length; i++)
             {
                 state.PlaceStone(actions[i]);

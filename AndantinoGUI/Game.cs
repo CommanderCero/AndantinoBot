@@ -21,6 +21,8 @@ namespace AndantinoGUI
 
         public AndantinoAgent Agent { get; set; }
         public HexCoordinate? NextPlay { get; set; }
+        public int HoveredChainIndex { get; set; }
+        public ChainRowCollection HoveredChainRow { get; set; }
 
         public Form1()
         {
@@ -30,6 +32,11 @@ namespace AndantinoGUI
 
             Game = new Andantino();
             Agent = new AndantinoAgent(new TestHeuristic());
+
+            lb_black_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.BlackChains);
+            lb_white_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
+            lb_black_chains.MouseLeave += (sender, args) => OnHoverChain(sender, args, Game.BlackChains);
+            lb_white_chains.MouseLeave += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
         }
 
         private void OnClickHexagon(HexCoordinate c)
@@ -39,18 +46,15 @@ namespace AndantinoGUI
                 return;
             }
 
-            if(Game.GetValidPlacements().Contains(c))
+            if (Game.GetValidPlacements().Contains(c))
             {
                 Game.PlaceStone(c);
                 NextPlay = null;
 
-                l_active_player.Text = Game.ActivePlayer.ToString();
-                l_winner.Text = Game.Winner.ToString();
-
-                hg_board.Invalidate();
+                UpdateRender();
             }
 
-            b_undo.Enabled = true;
+            (new TestHeuristic()).Evaluate(Game);
         }
 
         private void OnUndoClick(object sender, EventArgs e)
@@ -61,28 +65,41 @@ namespace AndantinoGUI
                 return;
 
             Game.UndoLastMove();
-            b_undo.Enabled = Game.CanUndo;
             UpdateRender();
         }
 
         private void OnRenderHexagon(Graphics g, HexCoordinate c)
         {
-            // Render background for valid moves
-            if(NextPlay != null && c.Equals(NextPlay))
+            if(HoveredChainRow != null)
+            {
+                if(HoveredChainRow.Contains(HoveredChainIndex, c))
+                {
+                    g.FillRectangle(new SolidBrush(Color.Magenta), g.ClipBounds);
+                }
+                else if(HoveredChainRow.GetChainStartExtension(HoveredChainIndex, out var q, out var r) && q == c.Q && r == c.R)
+                {
+                    g.FillRectangle(new SolidBrush(Color.DarkMagenta), g.ClipBounds);
+                }
+                else if (HoveredChainRow.GetChainEndExtension(HoveredChainIndex, out q, out r) && q == c.Q && r == c.R)
+                {
+                    g.FillRectangle(new SolidBrush(Color.DarkMagenta), g.ClipBounds);
+                }
+            }
+            else if(NextPlay != null && c.Equals(NextPlay)) // Render background for the move that was selected by the agent
             {
                 g.FillRectangle(new SolidBrush(Color.Orange), g.ClipBounds);
             }
-            else if(Game.GetValidPlacements().Contains(c))
+            else if(Game.GetValidPlacements().Contains(c)) // Render background for valid moves
             {
                 g.FillRectangle(new SolidBrush(Color.DarkGray), g.ClipBounds);
             }
 
-            if (Game[c] != Player.None)
+            if (Game[c] != Player.None) // Render placed stones
             {
                 var stoneColor = Game[c] == Player.Black ? Color.Black : Color.White;
                 g.FillEllipse(new SolidBrush(stoneColor), -StoneSize / 2, -StoneSize / 2, StoneSize, StoneSize);
             }
-            else if(hg_board.HoveredHexagon.Equals(c))
+            else if(hg_board.HoveredHexagon.Equals(c)) // Render fake stone for hovering
             {
                 var pen = new Pen(Game.ActivePlayer == Player.Black ? Color.Black : Color.White, 2);
                 pen.DashStyle = DashStyle.Dash;
@@ -100,16 +117,70 @@ namespace AndantinoGUI
         {
             Game.PlaceStone(NextPlay ?? Agent.GetNextPlay(Game));
             NextPlay = null;
-            b_undo.Enabled = true;
             UpdateRender();
         }
 
-        private void UpdateRender()
+        private void OnHoverChain(object sender, EventArgs e, ChainCollection collection)
         {
+            var listBox = (ListBox)sender;
+
+            var hoverPoint = listBox.PointToClient(Cursor.Position);
+            int index = listBox.IndexFromPoint(hoverPoint);
+            if (index < 0)
+            {
+                HoveredChainRow = null;
+                return;
+            }
+
+            foreach (var chainRow in collection.AllChains)
+            {
+                if(index < chainRow.ChainCount)
+                {
+                    HoveredChainRow = chainRow;
+                    HoveredChainIndex = index;
+                    break;
+                }
+
+                index -= chainRow.ChainCount;
+            }
+
+            UpdateRender(false);
+        }
+
+        private void UpdateRender(bool refillChains = true)
+        {
+            // Redraw the hexagon grid
             hg_board.Invalidate();
 
+            // Update active player and winner text
             l_active_player.Text = Game.ActivePlayer.ToString();
             l_winner.Text = Game.Winner.ToString();
+
+            // Enable\Disable undo button
+            b_undo.Enabled = Game.CanUndo;
+
+            // Display chains
+            if(refillChains)
+            {
+                FillChainListBox(lb_black_chains, Game.BlackChains);
+                FillChainListBox(lb_white_chains, Game.WhiteChains);
+            }
+        }
+
+        private void FillChainListBox(ListBox listBox, ChainCollection collection)
+        {
+            listBox.Items.Clear();
+
+            foreach(var chainRow in collection.AllChains)
+            {
+                for(var i = 0; i < chainRow.ChainCount; i++)
+                {
+                    chainRow.GetChainStart(i, out var qStart, out var rStart);
+                    chainRow.GetChainEnd(i, out var qEnd, out var rEnd);
+
+                    listBox.Items.Add($"{chainRow.Direction}: ({qStart}, {rStart}) to ({qEnd}, {rEnd})");
+                }
+            }
         }
     }
 }

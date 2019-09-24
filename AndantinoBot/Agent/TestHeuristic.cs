@@ -17,152 +17,50 @@ namespace AndantinoBot.Agent
     {
         public int Evaluate(Andantino state)
         {
-            var winningScore = 0;
+            // Calculate winning score, should get lower them ore turns the agent needs to win
             if (state.Winner == state.ActivePlayer)
-                winningScore = 1000000;
+                return 1000000 - state.TurnCount;
             else if (state.Winner == state.ActivePlayer.GetOpponent())
-                winningScore = -1000000;
+                return -1000000 - state.TurnCount;
 
-            var whiteScore = 0;
-            var blackScore = 0;
-            QFirst(state, ref whiteScore, ref blackScore);
-            RFirst(state, ref whiteScore, ref blackScore);
-            SFirst(state, ref whiteScore, ref blackScore);
+            var whiteScore = CalculateChainsScore(state, state.WhiteChains.QRowChains);
+            whiteScore += CalculateChainsScore(state, state.WhiteChains.RRowChains);
+            whiteScore += CalculateChainsScore(state, state.WhiteChains.SRowChains);
+
+            var blackScore = CalculateChainsScore(state, state.BlackChains.QRowChains);
+            blackScore += CalculateChainsScore(state, state.BlackChains.RRowChains);
+            blackScore += CalculateChainsScore(state, state.BlackChains.SRowChains);
 
             var chainScore = state.ActivePlayer == Player.Black ? blackScore - whiteScore : whiteScore - blackScore;
-            return winningScore + chainScore;
+            return chainScore;
         }
 
-        private void QFirst(Andantino state, ref int whiteScore, ref int blackScore)
+        public static int counter = 0;
+
+        private int CalculateChainsScore(Andantino state, ChainRowCollection[] rows)
         {
-            for (var r = -9; r <= 9; r++)
+            var score = 0;
+            for(var row = 0; row < rows.Length; row++)
             {
-                var q_start = Math.Max(-9 - r, -9);
-                var q_end = Math.Min(9 - r, 9);
-
-                var startOwner = state.ActivePlayer.GetOpponent();
-                var q = q_start;
-                while(q <= q_end)
+                var chainRow = rows[row];
+                for(var i = 0; i < chainRow.ChainCount; i++)
                 {
-                    var currentColor = state[q, r];
-                    if (currentColor == Player.None)
-                    {
-                        startOwner = currentColor;
-                        q++;
-                        continue;
-                    }
-
-                    var count = 0;
-                    while(q <= q_end && state[q, r] == currentColor)
-                    {
-                        count++;
-                        q++;
-                    }
+                    counter += 2;
+                    var isStartExtendable = chainRow.GetChainStartExtension(i, out var qStart, out var rStart) && state[qStart, rStart] == Player.None;
+                    var isEndExtendable = chainRow.GetChainEndExtension(i, out var qEnd, out var rEnd) && state[qEnd, rEnd] == Player.None;
 
                     // We found a useless chain, because we cannot add any stones to it
-                    if(startOwner == currentColor.GetOpponent() && (q > q_end || state[q,r] != Player.None))
+                    if (!isStartExtendable && !isEndExtendable)
                     {
                         continue;
                     }
 
-                    var score = count * count;
-                    switch(currentColor)
-                    {
-                        case Player.White: whiteScore += score;break;
-                        case Player.Black: blackScore += score;break;
-                    }
-
-                    startOwner = currentColor;
+                    var length = chainRow.GetChainLength(i);
+                    score += length * length;
                 }
             }
-        }
 
-        private void RFirst(Andantino state, ref int whiteScore, ref int blackScore)
-        {
-            for (var q = -9; q <= 9; q++)
-            {
-                int r_start = Math.Max(-9, -q - 9);
-                int r_end = Math.Min(9, -q + 9);
-
-                var startOwner = state.ActivePlayer.GetOpponent();
-                var r = r_start;
-                while (r <= r_end)
-                {
-                    var currentColor = state[q, r];
-                    if (currentColor == Player.None)
-                    {
-                        startOwner = currentColor;
-                        r++;
-                        continue;
-                    }
-
-                    var count = 0;
-                    while (r <= r_end && state[q, r] == currentColor)
-                    {
-                        count++;
-                        r++;
-                    }
-
-                    // We found a useless chain, because we cannot add any stones to it
-                    if (startOwner == currentColor.GetOpponent() && (q > r_end || state[q, r] != Player.None))
-                    {
-                        continue;
-                    }
-
-                    var score = count * count;
-                    switch (currentColor)
-                    {
-                        case Player.White: whiteScore += score; break;
-                        case Player.Black: blackScore += score; break;
-                    }
-
-                    startOwner = currentColor;
-                }
-            }
-        }
-
-        private void SFirst(Andantino state, ref int whiteScore, ref int blackScore)
-        {
-            for (int i = -9; i <= 9; i++)
-            {
-                var q_start = Math.Max(-9, i - 9);
-                var r_start = Math.Min(9, i + 9);
-
-                var x = 0;
-                var startOwner = state.ActivePlayer.GetOpponent();
-                while (x <= r_start - q_start)
-                {
-                    var currentColor = state[q_start + x, r_start - x];
-                    if (currentColor == Player.None)
-                    {
-                        startOwner = currentColor;
-                        x++;
-                        continue;
-                    }
-
-                    var count = 0;
-                    while (x <= r_start - q_start && state[q_start + x, r_start - x] == currentColor)
-                    {
-                        count++;
-                        x++;
-                    }
-
-                    // We found a useless chain, because we cannot add any stones to it
-                    if (startOwner == currentColor.GetOpponent() && (x > r_start - q_start || state[q_start + x, r_start - x] != Player.None))
-                    {
-                        continue;
-                    }
-
-                    var score = count * count;
-                    switch (currentColor)
-                    {
-                        case Player.White: whiteScore += score; break;
-                        case Player.Black: blackScore += score; break;
-                    }
-
-                    startOwner = currentColor;
-                }
-            }
+            return score;
         }
     }
 }
