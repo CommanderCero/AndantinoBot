@@ -60,7 +60,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Search\IMoveOrderer.cs" />
     <Compile Include="Search\IterativeDeepening.cs" />
-    <Compile Include="Search\AlphaBetaSearch.cs" />
     <Compile Include="Search\IAndantinoHeuristic.cs" />
     <Compile Include="Search\TranspositionTable.cs" />
   </ItemGroup>
