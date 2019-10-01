@@ -70,36 +70,44 @@ namespace AndantinoGUI
 
         private void OnRenderHexagon(Graphics g, HexCoordinate c)
         {
-            if(HoveredChainRow != null)
+            var backgroundColor = Color.LightGray;
+            if (HoveredChainRow != null)
             {
-                if(HoveredChainRow.Contains(HoveredChainIndex, c))
+                if (HoveredChainRow.Contains(HoveredChainIndex, c))
                 {
-                    g.FillRectangle(new SolidBrush(Color.Magenta), g.ClipBounds);
+                    backgroundColor = Color.Magenta;
                 }
-                else if(HoveredChainRow.GetChainStartExtension(HoveredChainIndex, out var q, out var r) && q == c.Q && r == c.R)
+                else if (HoveredChainRow.GetChainStartExtension(HoveredChainIndex, out var q, out var r) && q == c.Q && r == c.R)
                 {
-                    g.FillRectangle(new SolidBrush(Color.DarkMagenta), g.ClipBounds);
+                    backgroundColor = Color.DarkMagenta;
                 }
                 else if (HoveredChainRow.GetChainEndExtension(HoveredChainIndex, out q, out r) && q == c.Q && r == c.R)
                 {
-                    g.FillRectangle(new SolidBrush(Color.DarkMagenta), g.ClipBounds);
+                    backgroundColor = Color.DarkMagenta;
                 }
             }
-            else if(NextPlay != null && c.Equals(NextPlay)) // Render background for the move that was selected by the agent
+
+            if (backgroundColor == Color.LightGray)
             {
-                g.FillRectangle(new SolidBrush(Color.Orange), g.ClipBounds);
+                if (NextPlay != null && c.Equals(NextPlay)) // Render background for the move that was selected by the agent
+                {
+                    backgroundColor = Color.Orange;
+                }
+                else if (Game.GetValidPlacements().Contains(c)) // Render background for valid moves
+                {
+                    backgroundColor = Color.DarkGray;
+                }
             }
-            else if(Game.GetValidPlacements().Contains(c)) // Render background for valid moves
-            {
-                g.FillRectangle(new SolidBrush(Color.DarkGray), g.ClipBounds);
-            }
+
+            // Render Background
+            g.FillRectangle(new SolidBrush(backgroundColor), g.ClipBounds);
 
             if (Game[c] != Player.None) // Render placed stones
             {
                 var stoneColor = Game[c] == Player.Black ? Color.Black : Color.White;
                 g.FillEllipse(new SolidBrush(stoneColor), -StoneSize / 2, -StoneSize / 2, StoneSize, StoneSize);
             }
-            else if(hg_board.HoveredHexagon.Equals(c)) // Render fake stone for hovering
+            else if (hg_board.HoveredHexagon.Equals(c)) // Render fake stone for hovering
             {
                 var pen = new Pen(Game.ActivePlayer == Player.Black ? Color.Black : Color.White, 2);
                 pen.DashStyle = DashStyle.Dash;
