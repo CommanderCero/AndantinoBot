@@ -343,6 +343,16 @@ namespace AndantinoBot.Game
             return !closedList.Any(x => this[x] == targetPlayer);
         }
 
+        public ChainCollection GetPlayerChains(Player p)
+        {
+            switch(p)
+            {
+                case Player.Black: return BlackChains;
+                case Player.White: return WhiteChains;
+                default: return null;
+            }
+        }
+
         public HexCoordinate[] GetNeighbors(HexCoordinate pos)
         {
             return neighborLookup[pos.R + BOARD_RADIUS, pos.Q + BOARD_RADIUS];

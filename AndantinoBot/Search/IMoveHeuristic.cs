@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace AndantinoBot.Search
 {
-    // ToDo this is a crap name, who the fuck came up with this
-    public interface IMoveOrderer
+    public interface IMoveHeuristic
     {
-        HexCoordinate[] OrderMoves(Andantino state, HexCoordinate[] moves);
+        int Evaluate(HexCoordinate move, Andantino game);
     }
 }

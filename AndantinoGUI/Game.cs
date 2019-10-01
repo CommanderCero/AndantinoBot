@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -31,12 +32,14 @@ namespace AndantinoGUI
             hg_board.ClickHexagon += OnClickHexagon;
 
             Game = new Andantino();
-            Agent = new AndantinoAgent(new TestHeuristic());
+            Agent = new AndantinoAgent(new ChainLengthHeuristic(), new TestMoveHeuristic());
 
             lb_black_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.BlackChains);
             lb_white_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
             lb_black_chains.MouseLeave += (sender, args) => OnHoverChain(sender, args, Game.BlackChains);
             lb_white_chains.MouseLeave += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
+
+            cb_show_move_score.CheckedChanged += (sender, args) => UpdateRender();
         }
 
         private void OnClickHexagon(HexCoordinate c)
@@ -54,7 +57,8 @@ namespace AndantinoGUI
                 UpdateRender();
             }
 
-            (new TestHeuristic()).Evaluate(Game);
+            // Just for debugging purposes
+            (new ChainLengthHeuristic()).Evaluate(Game);
         }
 
         private void OnUndoClick(object sender, EventArgs e)
@@ -70,29 +74,37 @@ namespace AndantinoGUI
 
         private void OnRenderHexagon(Graphics g, HexCoordinate c)
         {
+            var backgroundColor = Color.LightGray;
             if(HoveredChainRow != null)
             {
                 if(HoveredChainRow.Contains(HoveredChainIndex, c))
                 {
-                    g.FillRectangle(new SolidBrush(Color.Magenta), g.ClipBounds);
+                    backgroundColor = Color.Magenta;
                 }
                 else if(HoveredChainRow.GetChainStartExtension(HoveredChainIndex, out var q, out var r) && q == c.Q && r == c.R)
                 {
-                    g.FillRectangle(new SolidBrush(Color.DarkMagenta), g.ClipBounds);
+                    backgroundColor = Color.DarkMagenta;
                 }
                 else if (HoveredChainRow.GetChainEndExtension(HoveredChainIndex, out q, out r) && q == c.Q && r == c.R)
                 {
-                    g.FillRectangle(new SolidBrush(Color.DarkMagenta), g.ClipBounds);
+                    backgroundColor = Color.DarkMagenta;
                 }
             }
-            else if(NextPlay != null && c.Equals(NextPlay)) // Render background for the move that was selected by the agent
+
+            if(backgroundColor == Color.LightGray)
             {
-                g.FillRectangle(new SolidBrush(Color.Orange), g.ClipBounds);
+                if (NextPlay != null && c.Equals(NextPlay)) // Render background for the move that was selected by the agent
+                {
+                    backgroundColor = Color.Orange;
+                }
+                else if (Game.GetValidPlacements().Contains(c)) // Render background for valid moves
+                {
+                    backgroundColor = Color.DarkGray;
+                }
             }
-            else if(Game.GetValidPlacements().Contains(c)) // Render background for valid moves
-            {
-                g.FillRectangle(new SolidBrush(Color.DarkGray), g.ClipBounds);
-            }
+
+            // Render Background
+            g.FillRectangle(new SolidBrush(backgroundColor), g.ClipBounds);
 
             if (Game[c] != Player.None) // Render placed stones
             {
@@ -104,6 +116,19 @@ namespace AndantinoGUI
                 var pen = new Pen(Game.ActivePlayer == Player.Black ? Color.Black : Color.White, 2);
                 pen.DashStyle = DashStyle.Dash;
                 g.DrawEllipse(pen, -StoneSize / 2, -StoneSize / 2, StoneSize, StoneSize);
+            }
+            else if(Game.GetValidPlacements().Contains(c) && cb_show_move_score.Checked)
+            {
+                var moves = Game.GetValidPlacements();
+                Agent.SearchAlgorithm.MoveOrderer.OrderMoves(moves, Game);
+
+                var index = Array.IndexOf(moves, c);
+                var score = Agent.SearchAlgorithm.MoveOrderer.Heuristic.Evaluate(c, Game);
+
+                StringFormat format = new StringFormat();
+                format.LineAlignment = StringAlignment.Center;
+                format.Alignment = StringAlignment.Center;
+                g.DrawString($"{index + 1}", new Font("Arial", 12), new SolidBrush(Color.Black), PointF.Empty, format);
             }
         }
 

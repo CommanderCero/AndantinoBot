@@ -8,10 +8,10 @@ namespace AndantinoBot.Game
 {
     public class ChainCollection
     {
-        public IEnumerable<ChainRowCollection> AllChains => QRowChains.Concat<ChainRowCollection>(RRowChains).Concat(SRowChains);
-        public QChainRowCollection[] QRowChains { get; }
-        public RChainRowCollection[] RRowChains { get; }
-        public SChainRowCollection[] SRowChains { get; }
+        public IEnumerable<ChainRowCollection> AllChains => QRows.Concat<ChainRowCollection>(RRows).Concat(SRows);
+        public QChainRowCollection[] QRows { get; }
+        public RChainRowCollection[] RRows { get; }
+        public SChainRowCollection[] SRows { get; }
 
         public int BoardRadius { get; }
 
@@ -20,15 +20,15 @@ namespace AndantinoBot.Game
             BoardRadius = boardRadius;
 
             var boardWidth = boardRadius * 2 + 1;
-            QRowChains = new QChainRowCollection[boardWidth];
-            RRowChains = new RChainRowCollection[boardWidth];
-            SRowChains = new SChainRowCollection[boardWidth];
+            QRows = new QChainRowCollection[boardWidth];
+            RRows = new RChainRowCollection[boardWidth];
+            SRows = new SChainRowCollection[boardWidth];
 
             for (var i = -boardRadius; i <= boardRadius; i++)
             {
-                QRowChains[i + boardRadius] = new QChainRowCollection(i, boardRadius);
-                RRowChains[i + boardRadius] = new RChainRowCollection(i, boardRadius);
-                SRowChains[i + boardRadius] = new SChainRowCollection(i, boardRadius);
+                QRows[i + boardRadius] = new QChainRowCollection(i, boardRadius);
+                RRows[i + boardRadius] = new RChainRowCollection(i, boardRadius);
+                SRows[i + boardRadius] = new SChainRowCollection(i, boardRadius);
             }
         }
 
@@ -46,19 +46,31 @@ namespace AndantinoBot.Game
             GetSChainsRow(cord).Remove(cord);
         }
 
+        public ChainRowCollection GetChainRow(Direction d, HexCoordinate c)
+        {
+            switch(d)
+            {
+                case Direction.Q: return GetQChainsRow(c);
+                case Direction.R: return GetRChainsRow(c);
+                case Direction.S: return GetSChainsRow(c);
+            }
+
+            return null;
+        }
+
         public ChainRowCollection GetQChainsRow(HexCoordinate row)
         {
-            return QRowChains[row.R + BoardRadius];
+            return QRows[row.R + BoardRadius];
         }
 
         public ChainRowCollection GetRChainsRow(HexCoordinate row)
         {
-            return RRowChains[row.Q + BoardRadius];
+            return RRows[row.Q + BoardRadius];
         }
 
         public ChainRowCollection GetSChainsRow(HexCoordinate row)
         {
-            return SRowChains[row.S + BoardRadius];
+            return SRows[row.S + BoardRadius];
         }
     }
 }

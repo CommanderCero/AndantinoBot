@@ -45,8 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agent\AndantinoAgent.cs" />
-    <Compile Include="Agent\TestHeuristic.cs" />
-    <Compile Include="Agent\TestMoveOrderer.cs" />
+    <Compile Include="Agent\ChainLengthHeuristic.cs" />
+    <Compile Include="Agent\TestMoveHeuristic.cs" />
     <Compile Include="Game\Andantino.cs" />
     <Compile Include="Game\Chains\QChainRowCollection.cs" />
     <Compile Include="Game\Chains\SChainRowCollection.cs" />
@@ -58,10 +58,10 @@
     <Compile Include="HexCoordinate.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Search\IMoveOrderer.cs" />
+    <Compile Include="Search\IMoveHeuristic.cs" />
     <Compile Include="Search\IterativeDeepening.cs" />
-    <Compile Include="Search\AlphaBetaSearch.cs" />
     <Compile Include="Search\IAndantinoHeuristic.cs" />
+    <Compile Include="Search\MoveOrderer.cs" />
     <Compile Include="Search\TranspositionTable.cs" />
   </ItemGroup>
   <ItemGroup>

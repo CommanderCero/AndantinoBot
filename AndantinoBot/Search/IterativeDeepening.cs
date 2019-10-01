@@ -8,29 +8,23 @@ using AndantinoBot.Game;
 
 namespace AndantinoBot.Search
 {
-    public class IterativeDeepening : IComparer<HexCoordinate>
+    public class IterativeDeepening
     {
         public IAndantinoHeuristic Evaluator { get; set; }
-        public IMoveOrderer MoveOrderer { get; set; }
+        public MoveOrderer MoveOrderer { get; set; }
         
         private readonly TranspositionTable transpositionTable;
-        private Dictionary<Player, int[,]> historyTable;
-        private Player activePlayer;
 
         // used for printing statistics
         private int evaluatedNodesCount = 0;
         private double averagePruningSteps = 0;
         private int averageCounter = 0;
 
-        public IterativeDeepening(IAndantinoHeuristic evaluator, IMoveOrderer orderer, TranspositionTable transpositionTable)
+        public IterativeDeepening(IAndantinoHeuristic evaluator, MoveOrderer orderer, TranspositionTable transpositionTable)
         {
             Evaluator = evaluator;
             MoveOrderer = orderer;
             this.transpositionTable = transpositionTable;
-
-            historyTable = new Dictionary<Player, int[,]>();
-            historyTable.Add(Player.Black, new int[Andantino.BOARD_WIDTH, Andantino.BOARD_WIDTH]);
-            historyTable.Add(Player.White, new int[Andantino.BOARD_WIDTH, Andantino.BOARD_WIDTH]);
         }
 
         public HexCoordinate GetBestPlay(Andantino state, long timeLimitMilliseconds)
@@ -61,9 +55,7 @@ namespace AndantinoBot.Search
             var maxValue = int.MinValue + 1;
             
             var actions = state.GetValidPlacements();
-            activePlayer = state.ActivePlayer;
-            Array.Sort(actions, this); // Sort according to our history table
-            // actions = MoveOrderer.OrderMoves(state, actions);
+            MoveOrderer.OrderMoves(actions, state);
 
             HexCoordinate bestPlay = actions[0];
             for (var i = 0; i < actions.Length; i++)
@@ -123,15 +115,12 @@ namespace AndantinoBot.Search
                 }
                 if (alpha >= beta)
                 {
-                    // We have a cutoff, update the history table
-                    historyTable[state.ActivePlayer][bestMove.R + Andantino.BOARD_RADIUS, bestMove.Q + Andantino.BOARD_RADIUS] += depth * depth;
                     return bestValue;
                 }
             }
 
             var actions = state.GetValidPlacements();
-            activePlayer = state.ActivePlayer;
-            Array.Sort(actions, this); // Sort according to our history table
+            MoveOrderer.OrderMoves(actions, state);
             var i = 0;
             for (; i < actions.Length; i++)
             {
@@ -154,8 +143,6 @@ namespace AndantinoBot.Search
                 }
                 if(alpha >= beta)
                 {
-                    // We have a cutoff, update the history table
-                    historyTable[state.ActivePlayer][action.R + Andantino.BOARD_RADIUS, action.Q + Andantino.BOARD_RADIUS] += depth * depth;
                     break;
                 }
             }
@@ -178,11 +165,6 @@ namespace AndantinoBot.Search
             averagePruningSteps += (i + 1 - averagePruningSteps) / averageCounter;
 
             return bestValue;
-        }
-
-        public int Compare(HexCoordinate x, HexCoordinate y)
-        {
-            return historyTable[activePlayer][y.R + Andantino.BOARD_RADIUS, y.Q + Andantino.BOARD_RADIUS] - historyTable[activePlayer][x.R + Andantino.BOARD_RADIUS, x.Q + Andantino.BOARD_RADIUS];
         }
     }
 }

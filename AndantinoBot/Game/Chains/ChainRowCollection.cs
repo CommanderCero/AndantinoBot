@@ -32,6 +32,28 @@ namespace AndantinoBot.Game
 
         public abstract bool Contains(int index, HexCoordinate c);
 
+        public int FindChainIndex(HexCoordinate c)
+        {
+            if (positions.Count == 0)
+                return -1;
+
+            var position = GetPosition(c);
+            if (position == positions[0])
+                return 0;
+            if (position == positions[positions.Count - 1])
+                return positions.Count / 2 - 1;
+
+            for(var i = 2; i < positions.Count; i += 2)
+            {
+                if (positions[i - 1] == position)
+                    return i / 2 - 1;
+                if (positions[i] == position)
+                    return i / 2;
+            }
+
+            return -1;
+        }
+
         public void Add(HexCoordinate c)
         {
             var newPosition = GetPosition(c);

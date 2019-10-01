@@ -13,23 +13,23 @@ namespace AndantinoBot.Agent
     // Good things checklist
     // 1. Many Long chains
     // 2. Add random factor?
-    public class TestHeuristic : IAndantinoHeuristic
+    public class ChainLengthHeuristic : IAndantinoHeuristic
     {
         public int Evaluate(Andantino state)
         {
-            // Calculate winning score, should get lower them ore turns the agent needs to win
+            // Calculate winning score, should get lower the more turns the agent needs to win
             if (state.Winner == state.ActivePlayer)
                 return 1000000 - state.TurnCount;
             else if (state.Winner == state.ActivePlayer.GetOpponent())
-                return -1000000 - state.TurnCount;
+                return -1000000 + state.TurnCount;
 
-            var whiteScore = CalculateChainsScore(state, state.WhiteChains.QRowChains);
-            whiteScore += CalculateChainsScore(state, state.WhiteChains.RRowChains);
-            whiteScore += CalculateChainsScore(state, state.WhiteChains.SRowChains);
+            var whiteScore = CalculateChainsScore(state, state.WhiteChains.QRows);
+            whiteScore += CalculateChainsScore(state, state.WhiteChains.RRows);
+            whiteScore += CalculateChainsScore(state, state.WhiteChains.SRows);
 
-            var blackScore = CalculateChainsScore(state, state.BlackChains.QRowChains);
-            blackScore += CalculateChainsScore(state, state.BlackChains.RRowChains);
-            blackScore += CalculateChainsScore(state, state.BlackChains.SRowChains);
+            var blackScore = CalculateChainsScore(state, state.BlackChains.QRows);
+            blackScore += CalculateChainsScore(state, state.BlackChains.RRows);
+            blackScore += CalculateChainsScore(state, state.BlackChains.SRows);
 
             var chainScore = state.ActivePlayer == Player.Black ? blackScore - whiteScore : whiteScore - blackScore;
             return chainScore;

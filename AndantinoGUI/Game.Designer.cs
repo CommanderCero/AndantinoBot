@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Drawing.StringFormat stringFormat3 = new System.Drawing.StringFormat();
+            System.Drawing.StringFormat stringFormat1 = new System.Drawing.StringFormat();
             this.printDocument1 = new System.Drawing.Printing.PrintDocument();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -40,6 +40,8 @@
             this.b_autoplay = new System.Windows.Forms.Button();
             this.b_next_move = new System.Windows.Forms.Button();
             this.b_undo = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.cb_show_move_score = new System.Windows.Forms.CheckBox();
             this.hg_board = new AndantinoGUI.HexagonalGrid();
             this.lb_black_chains = new System.Windows.Forms.ListBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -48,12 +50,14 @@
             this.flowLayoutPanel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.Controls.Add(this.groupBox1);
             this.flowLayoutPanel2.Controls.Add(this.groupBox2);
+            this.flowLayoutPanel2.Controls.Add(this.groupBox3);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(1066, 12);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(306, 637);
@@ -156,6 +160,26 @@
             this.b_undo.UseVisualStyleBackColor = true;
             this.b_undo.Click += new System.EventHandler(this.OnUndoClick);
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.cb_show_move_score);
+            this.groupBox3.Location = new System.Drawing.Point(3, 205);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(293, 100);
+            this.groupBox3.TabIndex = 2;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Debugging";
+            // 
+            // cb_show_move_score
+            // 
+            this.cb_show_move_score.AutoSize = true;
+            this.cb_show_move_score.Location = new System.Drawing.Point(7, 19);
+            this.cb_show_move_score.Name = "cb_show_move_score";
+            this.cb_show_move_score.Size = new System.Drawing.Size(170, 17);
+            this.cb_show_move_score.TabIndex = 0;
+            this.cb_show_move_score.Text = "Show Move-Heuristic Ranking";
+            this.cb_show_move_score.UseVisualStyleBackColor = true;
+            // 
             // hg_board
             // 
             this.hg_board.Location = new System.Drawing.Point(321, 12);
@@ -164,11 +188,11 @@
             this.hg_board.Size = new System.Drawing.Size(739, 637);
             this.hg_board.TabIndex = 1;
             this.hg_board.TextFont = new System.Drawing.Font("Arial", 8F);
-            stringFormat3.Alignment = System.Drawing.StringAlignment.Center;
-            stringFormat3.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
-            stringFormat3.LineAlignment = System.Drawing.StringAlignment.Center;
-            stringFormat3.Trimming = System.Drawing.StringTrimming.Character;
-            this.hg_board.TextFormat = stringFormat3;
+            stringFormat1.Alignment = System.Drawing.StringAlignment.Center;
+            stringFormat1.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
+            stringFormat1.LineAlignment = System.Drawing.StringAlignment.Center;
+            stringFormat1.Trimming = System.Drawing.StringTrimming.Character;
+            this.hg_board.TextFormat = stringFormat1;
             // 
             // lb_black_chains
             // 
@@ -227,6 +251,8 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -249,6 +275,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ListBox lb_white_chains;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox cb_show_move_score;
     }
 }
 
