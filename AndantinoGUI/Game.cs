@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -24,6 +25,9 @@ namespace AndantinoGUI
         public int HoveredChainIndex { get; set; }
         public ChainRowCollection HoveredChainRow { get; set; }
 
+        public Stack<long> ElapsedTimeHistory { get; }
+        public Stopwatch AgentStopwatch { get; }
+
         public Form1()
         {
             InitializeComponent();
@@ -37,6 +41,9 @@ namespace AndantinoGUI
             lb_white_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
             lb_black_chains.MouseLeave += (sender, args) => OnHoverChain(sender, args, Game.BlackChains);
             lb_white_chains.MouseLeave += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
+
+            ElapsedTimeHistory = new Stack<long>();
+            AgentStopwatch = new Stopwatch();
         }
 
         private void OnClickHexagon(HexCoordinate c)
@@ -65,6 +72,20 @@ namespace AndantinoGUI
                 return;
 
             Game.UndoLastMove();
+            ElapsedTimeHistory.Pop();
+            UpdateRender();
+        }
+
+        private void OnNextMoveClick(object sender, EventArgs e)
+        {
+            NextPlay = Agent.GetNextPlay(Game);
+            UpdateRender();
+        }
+
+        private void OnAutoplayClick(object sender, EventArgs e)
+        {
+            Game.PlaceStone(NextPlay ?? Agent.GetNextPlay(Game));
+            NextPlay = null;
             UpdateRender();
         }
 
@@ -113,19 +134,11 @@ namespace AndantinoGUI
                 pen.DashStyle = DashStyle.Dash;
                 g.DrawEllipse(pen, -StoneSize / 2, -StoneSize / 2, StoneSize, StoneSize);
             }
-        }
 
-        private void OnNextMoveClick(object sender, EventArgs e)
-        {
-            NextPlay = Agent.GetNextPlay(Game);
-            UpdateRender();
-        }
-
-        private void OnAutoplayClick(object sender, EventArgs e)
-        {
-            Game.PlaceStone(NextPlay ?? Agent.GetNextPlay(Game));
-            NextPlay = null;
-            UpdateRender();
+            if(NextPlay != null && c.Equals(NextPlay) && !c.Equals(hg_board.HoveredHexagon))
+            {
+                g.DrawString(hg_board.GetHannahNotationString(c), new Font("Arial", 10, FontStyle.Bold), new SolidBrush(Color.Black), Point.Empty, hg_board.TextFormat);
+            }
         }
 
         private void OnHoverChain(object sender, EventArgs e, ChainCollection collection)

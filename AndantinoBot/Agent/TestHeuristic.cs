@@ -35,8 +35,6 @@ namespace AndantinoBot.Agent
             return chainScore;
         }
 
-        public static int counter = 0;
-
         private int CalculateChainsScore(Andantino state, ChainRowCollection[] rows)
         {
             var score = 0;
@@ -45,7 +43,6 @@ namespace AndantinoBot.Agent
                 var chainRow = rows[row];
                 for(var i = 0; i < chainRow.ChainCount; i++)
                 {
-                    counter += 2;
                     var isStartExtendable = chainRow.GetChainStartExtension(i, out var qStart, out var rStart) && state[qStart, rStart] == Player.None;
                     var isEndExtendable = chainRow.GetChainEndExtension(i, out var qEnd, out var rEnd) && state[qEnd, rEnd] == Player.None;
 

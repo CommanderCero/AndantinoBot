@@ -11,7 +11,6 @@ namespace AndantinoBot.Search
     public class AlphaBetaSearch
     {
         public IAndantinoHeuristic Evaluator { get; set; }
-        public IMoveOrderer MoveOrderer { get; set; }
         
         private readonly TranspositionTable transpositionTable;
 
@@ -20,10 +19,9 @@ namespace AndantinoBot.Search
         private double averagePruningSteps = 0;
         private int averageCounter = 0;
 
-        public AlphaBetaSearch(IAndantinoHeuristic evaluator, IMoveOrderer orderer, TranspositionTable transpositionTable)
+        public AlphaBetaSearch(IAndantinoHeuristic evaluator, TranspositionTable transpositionTable)
         {
             Evaluator = evaluator;
-            MoveOrderer = orderer;
             this.transpositionTable = transpositionTable;
         }
 

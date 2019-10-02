@@ -15,7 +15,7 @@ namespace AndantinoBot
 
         public AndantinoAgent(IAndantinoHeuristic heuristic)
         {
-            AlphaBetaSearch = new AlphaBetaSearch(heuristic, null, new TranspositionTable(30000000));
+            AlphaBetaSearch = new AlphaBetaSearch(heuristic,  new TranspositionTable(30000000));
         }
 
         public HexCoordinate GetNextPlay(Andantino state)

@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="Agent\AndantinoAgent.cs" />
     <Compile Include="Agent\TestHeuristic.cs" />
-    <Compile Include="Agent\TestMoveOrderer.cs" />
     <Compile Include="Game\Andantino.cs" />
     <Compile Include="Game\Chains\QChainRowCollection.cs" />
     <Compile Include="Game\Chains\SChainRowCollection.cs" />

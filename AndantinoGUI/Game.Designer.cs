@@ -160,7 +160,6 @@
             // 
             this.hg_board.Location = new System.Drawing.Point(321, 12);
             this.hg_board.Name = "hg_board";
-            this.hg_board.Radius = 9;
             this.hg_board.Size = new System.Drawing.Size(739, 637);
             this.hg_board.TabIndex = 1;
             this.hg_board.TextFont = new System.Drawing.Font("Arial", 8F);

@@ -16,9 +16,7 @@ namespace AndantinoGUI
 
     public class HexagonalGrid : Panel
     {
-        [Description("The radius of the hexagonal shaped grid."), Category("GridSettings")]
-        public int Radius { get; set; }
-        [Description("Specifies the Q-Coordinate of the center hexagon. Default is zero."), Category("GridSettings")]
+        public int Radius { get; } = 9;
 
         public event RenderHexagonHandler RenderHexagon;
         public event ClickHexagonHandler ClickHexagon;
@@ -26,9 +24,6 @@ namespace AndantinoGUI
         public HexCoordinate? HoveredHexagon { get; private set; }
 
         public Pen BorderPen { get; set; } = new Pen(Color.Black);
-        public Pen HoverPen { get; set; } = new Pen(Color.Blue, 2);
-
-        public Brush TextBrush { get; set; } = new SolidBrush(Color.Black);
         public Font TextFont { get; set; } = new Font("Arial", 8);
         public StringFormat TextFormat { get; set; } = new StringFormat();
 
@@ -107,7 +102,11 @@ namespace AndantinoGUI
             }
 
             // Print the coordinates of the hovered hexagon
-            e.Graphics.DrawString(HoveredHexagon?.ToString(), new Font("Artial", 12), new SolidBrush(Color.Black), 0, 0);
+            if(HoveredHexagon != null)
+            {
+                e.Graphics.DrawString($"Havannah Notation: {GetHannahNotationString(HoveredHexagon.Value)}", new Font("Artial", 12), new SolidBrush(Color.Black), 0, 0);
+                e.Graphics.DrawString($"Coordinates: {HoveredHexagon.Value.ToString()}", new Font("Artial", 12), new SolidBrush(Color.Black), 0, 20);
+            }
         }
 
         public void PaintHexagon(Graphics g, HexCoordinate cord)
@@ -138,6 +137,14 @@ namespace AndantinoGUI
             // Draw the border
             // TODO While hovering there is still a black line visible
             g.DrawPolygon(BorderPen, GridLayout.GetHexCorners(cord));
+        }
+
+        public string GetHannahNotationString(HexCoordinate c)
+        {
+            var sLetter = char.ConvertFromUtf32(65 + (Radius - c.S));
+            var rNumber = c.R + Radius + 1;
+
+            return $"({rNumber}, {sLetter})";
         }
     }
 }
