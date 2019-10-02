@@ -21,7 +21,7 @@ namespace AndantinoBot.Agent
             if (state.Winner == state.ActivePlayer)
                 return 1000000 - state.TurnCount;
             else if (state.Winner == state.ActivePlayer.GetOpponent())
-                return -1000000 - state.TurnCount;
+                return -1000000 + state.TurnCount;
 
             var whiteScore = CalculateChainsScore(state, state.WhiteChains.QRowChains);
             whiteScore += CalculateChainsScore(state, state.WhiteChains.RRowChains);

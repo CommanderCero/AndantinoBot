@@ -11,11 +11,11 @@ namespace AndantinoBot
     // TODO We do not need a serarch for the first 3 turns
     public class AndantinoAgent
     {
-        public IterativeDeepening AlphaBetaSearch { get; set; }
+        public AlphaBetaSearch AlphaBetaSearch { get; set; }
 
         public AndantinoAgent(IAndantinoHeuristic heuristic)
         {
-            AlphaBetaSearch = new IterativeDeepening(heuristic, null, new TranspositionTable(30000000));
+            AlphaBetaSearch = new AlphaBetaSearch(heuristic, null, new TranspositionTable(30000000));
         }
 
         public HexCoordinate GetNextPlay(Andantino state)

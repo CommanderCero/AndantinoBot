@@ -8,79 +8,80 @@ using AndantinoBot.Game;
 
 namespace AndantinoBot.Search
 {
-    public class IterativeDeepening
+    public class AlphaBetaSearch
     {
         public IAndantinoHeuristic Evaluator { get; set; }
         public IMoveOrderer MoveOrderer { get; set; }
         
         private readonly TranspositionTable transpositionTable;
-        private Player activePlayer;
 
         // used for printing statistics
         private int evaluatedNodesCount = 0;
         private double averagePruningSteps = 0;
         private int averageCounter = 0;
 
-        public IterativeDeepening(IAndantinoHeuristic evaluator, IMoveOrderer orderer, TranspositionTable transpositionTable)
+        public AlphaBetaSearch(IAndantinoHeuristic evaluator, IMoveOrderer orderer, TranspositionTable transpositionTable)
         {
             Evaluator = evaluator;
             MoveOrderer = orderer;
             this.transpositionTable = transpositionTable;
         }
 
-        public HexCoordinate GetBestPlay(Andantino state, long timeLimitMilliseconds)
+        public HexCoordinate GetBestPlay(Andantino state, long millisecondsTimelimit)
         {
+            var actions = state.GetValidPlacements();
+            var globalBestPlay = actions[0];
+            var depth = 1;
+
             var watch = new Stopwatch();
             watch.Start();
-
-            HexCoordinate bestPlay = state.GetValidPlacements()[0];
-            for (var i = 1; watch.ElapsedMilliseconds < timeLimitMilliseconds; i++)
+            while (true)
             {
-                bestPlay = GetBestPlay(state, i);
-                Debug.WriteLine($"{i}. Time: {watch.ElapsedMilliseconds} Best Move: {bestPlay} Average Pruning: {averagePruningSteps:0.##} Evaluated Nodes: {evaluatedNodesCount}");
+                // int.MinValue = -2147483648 and int.MaxValue = 2147483647
+                // When trying to multiply int.MinValue with a -1 we would get a overflow, so we have to reduce it by one
+                var alpha = int.MinValue + 1;
+                var beta = int.MaxValue;
+                var localMaxValue = int.MinValue + 1;
+                HexCoordinate localBestPlay = actions[0];
+                for (var i = 0; i < actions.Length && watch.ElapsedMilliseconds < millisecondsTimelimit; i++)
+                {
+                    state.PlaceStone(actions[i]);
+                    var value = -GetValue(state, depth - 1, -beta, -alpha, watch, millisecondsTimelimit);
+                    state.UndoLastMove();
+
+                    if (value > localMaxValue)
+                    {
+                        localMaxValue = value;
+                        localBestPlay = actions[i];
+                    }
+                    if (localMaxValue > alpha)
+                    {
+                        alpha = localMaxValue;
+                    }
+                }
+
+                if (watch.ElapsedMilliseconds > millisecondsTimelimit)
+                {
+                    Debug.WriteLine($"{depth}: Aborted search after {watch.ElapsedMilliseconds}ms. returning best play from depth {depth - 1}");
+                    return globalBestPlay;
+                }
+                    
+
+                globalBestPlay = localBestPlay;
+                Debug.WriteLine($"{depth}. Time: {watch.ElapsedMilliseconds} Best Move: {globalBestPlay} Average Pruning: {averagePruningSteps:0.##} Evaluated Nodes: {evaluatedNodesCount}");
                 evaluatedNodesCount = 0;
                 averagePruningSteps = 0;
                 averageCounter = 0;
+                depth++;
             }
-
-            return bestPlay;
         }
 
-        public HexCoordinate GetBestPlay(Andantino state, int depth)
+        public int GetValue(Andantino state, int depth, int alpha, int beta, Stopwatch timer, long millisecondsTimelimit)
         {
-            // int.MinValue = -2147483648 and int.MaxValue = 2147483647
-            // When trying to multiply int.MinValue with a -1 we would get a overflow, so we have to reduce it by one
-            var alpha = int.MinValue + 1;
-            var beta = int.MaxValue;
+            // Did we reach the time limit?
+            if (timer.ElapsedMilliseconds > millisecondsTimelimit)
+                return -1;
 
-            var maxValue = int.MinValue + 1;
-            
-            var actions = state.GetValidPlacements();
-            activePlayer = state.ActivePlayer;
-
-            HexCoordinate bestPlay = actions[0];
-            for (var i = 0; i < actions.Length; i++)
-            {
-                state.PlaceStone(actions[i]);
-                var value = -GetValue(state, depth - 1, -beta, -alpha);
-                state.UndoLastMove();
-
-                if (value > maxValue)
-                {
-                    maxValue = value;
-                    bestPlay = actions[i];
-                }
-                if (maxValue > alpha)
-                {
-                    alpha = maxValue;
-                }
-            }
-
-            return bestPlay;
-        }
-
-        public int GetValue(Andantino state, int depth, int alpha, int beta)
-        {
             // Check entry in transposition table
             var entry = transpositionTable.GetEntry(state);
             if(entry.Depth >= depth)
@@ -108,7 +109,7 @@ namespace AndantinoBot.Search
             if (entry.Depth != -1)
             {
                 state.PlaceStone(bestMove);
-                bestValue = -GetValue(state, depth - 1, -beta, -alpha);
+                bestValue = -GetValue(state, depth - 1, -beta, -alpha, timer, millisecondsTimelimit);
                 state.UndoLastMove();
                 if (bestValue > alpha)
                 {
@@ -121,7 +122,6 @@ namespace AndantinoBot.Search
             }
 
             var actions = state.GetValidPlacements();
-            activePlayer = state.ActivePlayer;
             var i = 0;
             for (; i < actions.Length; i++)
             {
@@ -130,7 +130,7 @@ namespace AndantinoBot.Search
                     continue;
 
                 state.PlaceStone(action);
-                var value = -GetValue(state, depth - 1, -beta, -alpha);
+                var value = -GetValue(state, depth - 1, -beta, -alpha, timer, millisecondsTimelimit);
                 state.UndoLastMove();
 
                 if (value > bestValue)
