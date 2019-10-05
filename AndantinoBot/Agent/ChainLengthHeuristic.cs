@@ -13,7 +13,7 @@ namespace AndantinoBot.Agent
     // Good things checklist
     // 1. Many Long chains
     // 2. Add random factor?
-    public class TestHeuristic : IAndantinoHeuristic
+    public class ChainLengthHeuristic : IAndantinoHeuristic
     {
         public int Evaluate(Andantino state)
         {
@@ -22,6 +22,8 @@ namespace AndantinoBot.Agent
                 return 1000000 - state.TurnCount;
             else if (state.Winner == state.ActivePlayer.GetOpponent())
                 return -1000000 + state.TurnCount;
+            else if (state.IsGameOver)
+                return 0;
 
             var whiteScore = CalculateChainsScore(state, state.WhiteChains.QRowChains);
             whiteScore += CalculateChainsScore(state, state.WhiteChains.RRowChains);

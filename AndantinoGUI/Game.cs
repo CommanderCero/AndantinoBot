@@ -35,7 +35,7 @@ namespace AndantinoGUI
             hg_board.ClickHexagon += OnClickHexagon;
 
             Game = new Andantino();
-            Agent = new AndantinoAgent(new TestHeuristic());
+            Agent = new AndantinoAgent(new ChainLengthHeuristic());
 
             lb_black_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.BlackChains);
             lb_white_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
@@ -44,6 +44,8 @@ namespace AndantinoGUI
 
             ElapsedTimeHistory = new Stack<long>();
             AgentStopwatch = new Stopwatch();
+
+
         }
 
         private void OnClickHexagon(HexCoordinate c)
@@ -61,7 +63,7 @@ namespace AndantinoGUI
                 UpdateRender();
             }
 
-            (new TestHeuristic()).Evaluate(Game);
+            (new ChainLengthHeuristic()).Evaluate(Game);
         }
 
         private void OnUndoClick(object sender, EventArgs e)
@@ -72,7 +74,6 @@ namespace AndantinoGUI
                 return;
 
             Game.UndoLastMove();
-            ElapsedTimeHistory.Pop();
             UpdateRender();
         }
 

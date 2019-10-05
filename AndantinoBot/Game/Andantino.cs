@@ -27,6 +27,9 @@ namespace AndantinoBot.Game
         public ChainCollection BlackChains { get; }
         public ChainCollection WhiteChains { get; }
 
+        public Dictionary<Player, List<HexCoordinate>> EnclosedStones { get; }
+        private Dictionary<HexCoordinate, List<HexCoordinate>> moveEnclosedStones;
+
         private readonly Stack<HexCoordinate> lastMoves;
         private readonly Player[,] map;
         private readonly HashSet<HexCoordinate> validPlacements;
@@ -77,6 +80,11 @@ namespace AndantinoBot.Game
 
             BlackChains = new ChainCollection(BOARD_RADIUS);
             WhiteChains = new ChainCollection(BOARD_RADIUS);
+
+            moveEnclosedStones = new Dictionary<HexCoordinate, List<HexCoordinate>>();
+            EnclosedStones = new Dictionary<Player, List<HexCoordinate>>();
+            EnclosedStones.Add(Player.Black, new List<HexCoordinate>());
+            EnclosedStones.Add(Player.White, new List<HexCoordinate>());
 
             map = new Player[BOARD_WIDTH, BOARD_WIDTH];
             this[Center] = Player.Black;
@@ -165,6 +173,16 @@ namespace AndantinoBot.Game
 
             // Switch the active player
             ActivePlayer = ActivePlayer.GetOpponent();
+
+            // Remove enclosed stones
+            if (moveEnclosedStones.ContainsKey(lastMove))
+            {
+                foreach (var tile in moveEnclosedStones[lastMove])
+                {
+                    EnclosedStones[ActivePlayer].Remove(tile);
+                }
+                moveEnclosedStones.Remove(lastMove);
+            }
 
             // Update the chain collection
             switch (ActivePlayer)
@@ -257,60 +275,83 @@ namespace AndantinoBot.Game
 
             // Check if the active player enclosed the opponent
             var clockwiseNeighbors = GetNeighbors(placementCord);
-            var startIndex = 0;
-            var endIndex = 0;
+            var endIndex = clockwiseNeighbors.Length - 1;
 
-            if (this[clockwiseNeighbors[endIndex]] != player)
+            // Since the first and last index are actually connected, we do not want to double check the stones at the end of our array
+            if (this[clockwiseNeighbors[endIndex]] != player && this[clockwiseNeighbors[0]] != player)
             {
-                endIndex = clockwiseNeighbors.Length - 1;
-                while (this[clockwiseNeighbors[endIndex]] != player && startIndex != endIndex)
+                while (this[clockwiseNeighbors[endIndex]] != player && 0 != endIndex)
                 {
-                    endIndex = (endIndex - 1) % clockwiseNeighbors.Length;
+                    endIndex--;
                 }
-            }
-            else
-            {
-                startIndex = 1;
             }
 
             // We are sourrounded by empty or enemy tiles
-            if(startIndex == endIndex)
+            if(0 == endIndex)
             {
                 // Check if the placed stone was in an enclosed area
-                if (!CanReachBorder(placementCord, player))
+                if (EnclosedStones[player.GetOpponent()].Contains(placementCord))
                 {
                     return player.GetOpponent();
                 }
             }
             else
             {
+                var firstCheckIndex = -1;
+                var needToCheck = false;
                 var prevCouldReachBorder = false;
-                while (startIndex != endIndex)
+                for(var i = 0; i <= endIndex; i++)
                 {
-                    var currPosition = clockwiseNeighbors[startIndex];
+                    var currPosition = clockwiseNeighbors[i];
                     if (this[currPosition] == player)
                     {
                         prevCouldReachBorder = false;
                     }
                     else if (!prevCouldReachBorder)
                     {
-                        if (CanReachBorder(currPosition, player.GetOpponent()))
+                        prevCouldReachBorder = true;
+                        if(firstCheckIndex == -1)
                         {
-                            prevCouldReachBorder = true;
+                            // We should check this stone, but only after we know for sure that we've connected atleast 2 stones
+                            firstCheckIndex = i;
                         }
                         else
                         {
-                            return player;
+                            // We found 2 stones that were connected
+                            needToCheck = true;
+                            var enclosedStones = GetEnclosedStones(currPosition, player.GetOpponent());
+                            if(enclosedStones != null && enclosedStones.Any(x => this[x] == player.GetOpponent()))
+                            {
+                                return player;
+                            }
+                            else if(enclosedStones != null)
+                            {
+                                EnclosedStones[player].AddRange(enclosedStones);
+                                moveEnclosedStones.Add(placementCord, enclosedStones);
+                            }
                         }
                     }
-                    startIndex = (startIndex + 1) % clockwiseNeighbors.Length;
+                }
+
+                if(needToCheck)
+                {
+                    var enclosedStones = GetEnclosedStones(clockwiseNeighbors[firstCheckIndex], player.GetOpponent());
+                    if (enclosedStones != null && enclosedStones.Any(x => this[x] == player.GetOpponent()))
+                    {
+                        return player;
+                    }
+                    else if(enclosedStones != null)
+                    {
+                        EnclosedStones[player].AddRange(enclosedStones);
+                        moveEnclosedStones.Add(placementCord, enclosedStones);
+                    }
                 }
             }
 
             return Player.None;
         }
 
-        private bool CanReachBorder(HexCoordinate stoneCord, Player targetPlayer)
+        private List<HexCoordinate> GetEnclosedStones(HexCoordinate stoneCord, Player targetPlayer)
         {
             var opponent = targetPlayer.GetOpponent();
 
@@ -325,7 +366,7 @@ namespace AndantinoBot.Game
 
                 if (next.TwiceLength() == BOARD_RADIUS * 2)
                 {
-                    return true;
+                    return null;
                 }
 
                 var neighbors = GetNeighbors(next);
@@ -340,18 +381,12 @@ namespace AndantinoBot.Game
                 }
             }
 
-            return !closedList.Any(x => this[x] == targetPlayer);
+            return closedList.ToList();
         }
 
         public HexCoordinate[] GetNeighbors(HexCoordinate pos)
         {
             return neighborLookup[pos.R + BOARD_RADIUS, pos.Q + BOARD_RADIUS];
-        }
-
-        public bool IsValidCoordinate(HexCoordinate c)
-        {
-            // Distance to the center, because the center is (0,0) we do not need to consider it
-            return Math.Abs(c.Q) + Math.Abs(c.R) + Math.Abs(c.S) <= BOARD_RADIUS * 2;
         }
 
         public long GetLongHashCode()
