@@ -35,7 +35,7 @@ namespace AndantinoGUI
             hg_board.ClickHexagon += OnClickHexagon;
 
             Game = new Andantino();
-            Agent = new AndantinoAgent(new ChainLengthHeuristic());
+            Agent = new AndantinoAgent(new TileCapturingHeuristic());
 
             lb_black_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.BlackChains);
             lb_white_chains.MouseMove += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
@@ -124,9 +124,9 @@ namespace AndantinoGUI
             // Render Background
             g.FillRectangle(new SolidBrush(backgroundColor), g.ClipBounds);
 
-            if (Game[c] != Player.None) // Render placed stones
+            if (Game.Board[c] != Player.None) // Render placed stones
             {
-                var stoneColor = Game[c] == Player.Black ? Color.Black : Color.White;
+                var stoneColor = Game.Board[c] == Player.Black ? Color.Black : Color.White;
                 g.FillEllipse(new SolidBrush(stoneColor), -StoneSize / 2, -StoneSize / 2, StoneSize, StoneSize);
             }
             else if (hg_board.HoveredHexagon.Equals(c)) // Render fake stone for hovering

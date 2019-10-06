@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agent\AndantinoAgent.cs" />
+    <Compile Include="Agent\TileCapturingHeuristic.cs" />
     <Compile Include="Agent\ChainLengthHeuristic.cs" />
     <Compile Include="Game\Andantino.cs" />
     <Compile Include="Game\Chains\QChainRowCollection.cs" />
@@ -53,7 +54,6 @@
     <Compile Include="Game\Chains\ChainRowCollection.cs" />
     <Compile Include="Game\Chains\ChainCollection.cs" />
     <Compile Include="Direction.cs" />
-    <Compile Include="Game\DefaultAndantinoRules.cs" />
     <Compile Include="Game\HexagonBoard.cs" />
     <Compile Include="Game\Player.cs" />
     <Compile Include="HexCoordinate.cs" />

@@ -39,7 +39,6 @@ namespace GridIterationTest
             // 
             this.hg_board.Location = new System.Drawing.Point(12, 12);
             this.hg_board.Name = "hg_board";
-            this.hg_board.Radius = 9;
             this.hg_board.Size = new System.Drawing.Size(866, 594);
             this.hg_board.TabIndex = 0;
             this.hg_board.TextFont = new System.Drawing.Font("Arial", 8F);
