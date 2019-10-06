@@ -45,8 +45,8 @@ namespace AndantinoBot.Agent
                 var chainRow = rows[row];
                 for(var i = 0; i < chainRow.ChainCount; i++)
                 {
-                    var isStartExtendable = chainRow.GetChainStartExtension(i, out var qStart, out var rStart) && state[qStart, rStart] == Player.None;
-                    var isEndExtendable = chainRow.GetChainEndExtension(i, out var qEnd, out var rEnd) && state[qEnd, rEnd] == Player.None;
+                    var isStartExtendable = chainRow.GetChainStartExtension(i, out var qStart, out var rStart) && state.Board[qStart, rStart] == Player.None;
+                    var isEndExtendable = chainRow.GetChainEndExtension(i, out var qEnd, out var rEnd) && state.Board[qEnd, rEnd] == Player.None;
 
                     // We found a useless chain, because we cannot add any stones to it
                     if (!isStartExtendable && !isEndExtendable)

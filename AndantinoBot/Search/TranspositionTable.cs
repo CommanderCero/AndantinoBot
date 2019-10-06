@@ -60,7 +60,7 @@ namespace AndantinoBot.Search
 
         public void Store(Andantino key, int value, TranpositionValueType type, int depth, HexCoordinate bestMove)
         {
-            var hashValue = key.GetLongHashCode();
+            var hashValue = key.Board.GetLongHashCode();
             var hashIndex = hashValue % Size;
 
             if(entries[hashIndex, 0].Depth < depth)
@@ -75,7 +75,7 @@ namespace AndantinoBot.Search
 
         public TranspositionEntry GetEntry(Andantino key)
         {
-            var hashValue = key.GetLongHashCode();
+            var hashValue = key.Board.GetLongHashCode();
             var hashIndex = hashValue % Size;
 
             if(entries[hashIndex, 0].Key == hashValue)

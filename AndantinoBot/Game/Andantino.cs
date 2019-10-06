@@ -11,10 +11,9 @@ namespace AndantinoBot.Game
     // TODO Maybe replace GetNeighbor calls with an dictionary, that way we do not have to generate 6 new instances every time we want to get the neighbors
     public class Andantino
     {
-        public const int BOARD_RADIUS = 9;
-        public const int BOARD_WIDTH = BOARD_RADIUS * 2 + 1;
-
         public HexCoordinate Center { get; } = new HexCoordinate(0, 0);
+
+        public HexagonBoard Board { get; }
 
         public Player ActivePlayer { get; private set; }
         public Player Winner { get; private set; }
@@ -31,63 +30,24 @@ namespace AndantinoBot.Game
         private Dictionary<HexCoordinate, List<HexCoordinate>> moveEnclosedStones;
 
         private readonly Stack<HexCoordinate> lastMoves;
-        private readonly Player[,] map;
         private readonly HashSet<HexCoordinate> validPlacements;
-
-        private static readonly HexCoordinate[,][] neighborLookup;
-
-        // For Hashcode calculation
-        private static Dictionary<Player, long[,]> randomNumbers;
-        private long currentHashcode;
-
-        static Andantino()
-        {
-            randomNumbers = new Dictionary<Player, long[,]>();
-            neighborLookup = new HexCoordinate[BOARD_WIDTH, BOARD_WIDTH][];
-
-            var blackRandomNumbers = new long[BOARD_WIDTH, BOARD_WIDTH];
-            var whiteRandomNumbers = new long[BOARD_WIDTH, BOARD_WIDTH];
-            var random = new Random(1); // always use the same seed for deterministic results
-            var byteBuffer = new byte[64];
-            for (var r = -BOARD_RADIUS; r <= BOARD_RADIUS; r++)
-            {
-                var q_start = Math.Max(-BOARD_RADIUS - r, -BOARD_RADIUS);
-                var q_end = Math.Min(BOARD_RADIUS - r, BOARD_RADIUS);
-                for (var q = q_start; q <= q_end; q++)
-                {
-                    // Generate random numbers for zobris hashing
-                    var arrayPos = new HexCoordinate(r + BOARD_RADIUS, q + BOARD_RADIUS);
-                    random.NextBytes(byteBuffer);
-                    blackRandomNumbers[arrayPos.R, arrayPos.Q] = Math.Abs(BitConverter.ToInt64(byteBuffer, 0));
-                    random.NextBytes(byteBuffer);
-                    whiteRandomNumbers[arrayPos.R, arrayPos.Q] = Math.Abs(BitConverter.ToInt64(byteBuffer, 0));
-
-                    // Generate valid neighbors for faster access
-                    var pos = new HexCoordinate(r, q);
-                    neighborLookup[arrayPos.R, arrayPos.Q] = pos.GetNeighborsClockwise().Where(x => x.Distance(new HexCoordinate(0, 0)) <= BOARD_RADIUS).ToArray();
-
-                }
-            }
-
-            randomNumbers.Add(Player.Black, blackRandomNumbers);
-            randomNumbers.Add(Player.White, whiteRandomNumbers);
-        }
 
         public Andantino()
         {
+            Board = new HexagonBoard();
+
             validPlacements = new HashSet<HexCoordinate>(Center.GetNeighborsClockwise());
             lastMoves = new Stack<HexCoordinate>();
 
-            BlackChains = new ChainCollection(BOARD_RADIUS);
-            WhiteChains = new ChainCollection(BOARD_RADIUS);
+            BlackChains = new ChainCollection(HexagonBoard.BOARD_RADIUS);
+            WhiteChains = new ChainCollection(HexagonBoard.BOARD_RADIUS);
 
             moveEnclosedStones = new Dictionary<HexCoordinate, List<HexCoordinate>>();
             EnclosedStones = new Dictionary<Player, List<HexCoordinate>>();
             EnclosedStones.Add(Player.Black, new List<HexCoordinate>());
             EnclosedStones.Add(Player.White, new List<HexCoordinate>());
 
-            map = new Player[BOARD_WIDTH, BOARD_WIDTH];
-            this[Center] = Player.Black;
+            Board.PlaceStone(Center, Player.Black);
             BlackChains.Add(Center);
             ActivePlayer = Player.White;
         }
@@ -117,11 +77,8 @@ namespace AndantinoBot.Game
             }
 
             // Place stone
-            this[cord] = ActivePlayer;
+            Board.PlaceStone(cord, ActivePlayer);
             lastMoves.Push(cord);
-
-            // Update the hashcode
-            currentHashcode ^= randomNumbers[ActivePlayer][cord.R + BOARD_RADIUS, cord.Q + BOARD_RADIUS];
 
             // Switch active player
             ActivePlayer = ActivePlayer.GetOpponent();
@@ -138,12 +95,12 @@ namespace AndantinoBot.Game
             }
 
             // Add new placement coordinates
-            var neighbors = GetNeighbors(cord);
+            var neighbors = Board.GetNeighbors(cord);
             for(var i = 0; i < neighbors.Length; i++)
             {
                 var neighbor = neighbors[i];
                 // Do not add coordinates where a stone is already placed
-                if (this[neighbor] != Player.None)
+                if (Board[neighbor] != Player.None)
                     continue;
 
                 var neighborCount = CountNeighborStones(neighbor);
@@ -166,9 +123,9 @@ namespace AndantinoBot.Game
                 throw new Exception("Tried to undo the last move, when no last moves are available");
         
             var lastMove = lastMoves.Pop();
-        
+
             // Remove the stone
-            this[lastMove] = Player.None;
+            Board.RemoveStone(lastMove);
             validPlacements.Add(lastMove);
 
             // Switch the active player
@@ -190,18 +147,15 @@ namespace AndantinoBot.Game
                 case Player.Black: BlackChains.Remove(lastMove); break;
                 case Player.White: WhiteChains.Remove(lastMove); break;
             }
-
-            // Update the hashcode
-            currentHashcode ^= randomNumbers[ActivePlayer][lastMove.R + BOARD_RADIUS, lastMove.Q + BOARD_RADIUS];
         
             // Remove now invalid placements
             if(CanUndo)
             {
-                var neighbors = GetNeighbors(lastMove);
+                var neighbors = Board.GetNeighbors(lastMove);
                 for(var i = 0; i < neighbors.Length; i++)
                 {
                     var neighbor = neighbors[i];
-                    if (this[neighbor] != Player.None)
+                    if (Board[neighbor] != Player.None)
                         continue;
 
                     var neighborCount = CountNeighborStones(neighbor);
@@ -226,11 +180,11 @@ namespace AndantinoBot.Game
         public int CountNeighborStones(HexCoordinate cord)
         {
             var count = 0;
-            var neighbors = GetNeighbors(cord);
+            var neighbors = Board.GetNeighbors(cord);
             for (var i = 0; i < neighbors.Length; i++)
             {
                 var neighbor = neighbors[i];
-                if(this[neighbor] != Player.None)
+                if(Board[neighbor] != Player.None)
                 {
                     count += 1;
                 }
@@ -245,7 +199,7 @@ namespace AndantinoBot.Game
             if (lastMoves.Count < 8)
                 return Player.None;
 
-            var player = this[placementCord];
+            var player = Board[placementCord];
             // Check if the player has 5 stones in a row
             foreach(var axis in new HexCoordinate[] {HexCoordinate.East, HexCoordinate.NorthEast, HexCoordinate.NorthWest})
             {
@@ -256,7 +210,7 @@ namespace AndantinoBot.Game
                     for (var i = 1; i < 5; i++)
                     {
                         var pos = placementCord + axis * i * dir;
-                        if (pos.TwiceLength() > BOARD_RADIUS * 2 || this[pos] != player)
+                        if (pos.TwiceLength() > HexagonBoard.BOARD_RADIUS * 2 || Board[pos] != player)
                             break;
 
                         colorCount++;
@@ -274,13 +228,13 @@ namespace AndantinoBot.Game
                 return Player.None;
 
             // Check if the active player enclosed the opponent
-            var clockwiseNeighbors = GetNeighbors(placementCord);
+            var clockwiseNeighbors = Board.GetNeighbors(placementCord);
             var endIndex = clockwiseNeighbors.Length - 1;
 
             // Since the first and last index are actually connected, we do not want to double check the stones at the end of our array
-            if (this[clockwiseNeighbors[endIndex]] != player && this[clockwiseNeighbors[0]] != player)
+            if (Board[clockwiseNeighbors[endIndex]] != player && Board[clockwiseNeighbors[0]] != player)
             {
-                while (this[clockwiseNeighbors[endIndex]] != player && 0 != endIndex)
+                while (Board[clockwiseNeighbors[endIndex]] != player && 0 != endIndex)
                 {
                     endIndex--;
                 }
@@ -303,7 +257,7 @@ namespace AndantinoBot.Game
                 for(var i = 0; i <= endIndex; i++)
                 {
                     var currPosition = clockwiseNeighbors[i];
-                    if (this[currPosition] == player)
+                    if (Board[currPosition] == player)
                     {
                         prevCouldReachBorder = false;
                     }
@@ -320,7 +274,7 @@ namespace AndantinoBot.Game
                             // We found 2 stones that were connected
                             needToCheck = true;
                             var enclosedStones = GetEnclosedStones(currPosition, player.GetOpponent());
-                            if(enclosedStones != null && enclosedStones.Any(x => this[x] == player.GetOpponent()))
+                            if(enclosedStones != null && enclosedStones.Any(x => Board[x] == player.GetOpponent()))
                             {
                                 return player;
                             }
@@ -336,7 +290,7 @@ namespace AndantinoBot.Game
                 if(needToCheck)
                 {
                     var enclosedStones = GetEnclosedStones(clockwiseNeighbors[firstCheckIndex], player.GetOpponent());
-                    if (enclosedStones != null && enclosedStones.Any(x => this[x] == player.GetOpponent()))
+                    if (enclosedStones != null && enclosedStones.Any(x => Board[x] == player.GetOpponent()))
                     {
                         return player;
                     }
@@ -364,16 +318,16 @@ namespace AndantinoBot.Game
             {
                 var next = openList.Pop();
 
-                if (next.TwiceLength() == BOARD_RADIUS * 2)
+                if (next.TwiceLength() == HexagonBoard.BOARD_RADIUS * 2)
                 {
                     return null;
                 }
 
-                var neighbors = GetNeighbors(next);
+                var neighbors = Board.GetNeighbors(next);
                 for(var i = 0; i < neighbors.Length; i++)
                 {
                     var neighbor = neighbors[i];
-                    if (this[neighbor] == opponent || closedList.Contains(neighbor))
+                    if (Board[neighbor] == opponent || closedList.Contains(neighbor))
                         continue;
 
                     openList.Push(neighbor);
@@ -382,28 +336,6 @@ namespace AndantinoBot.Game
             }
 
             return closedList.ToList();
-        }
-
-        public HexCoordinate[] GetNeighbors(HexCoordinate pos)
-        {
-            return neighborLookup[pos.R + BOARD_RADIUS, pos.Q + BOARD_RADIUS];
-        }
-
-        public long GetLongHashCode()
-        {
-            return currentHashcode;
-        }
-
-        public Player this[HexCoordinate cord]
-        {
-            get { return map[cord.R + BOARD_RADIUS, cord.Q + BOARD_RADIUS]; }
-            private set { map[cord.R + BOARD_RADIUS, cord.Q + BOARD_RADIUS] = value; }
-        }
-
-        public Player this[int q, int r]
-        {
-            get { return map[r + BOARD_RADIUS, q + BOARD_RADIUS]; }
-            private set { map[r + BOARD_RADIUS, q + BOARD_RADIUS] = value; }
         }
     }
 }
