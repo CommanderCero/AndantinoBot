@@ -28,9 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Drawing.StringFormat stringFormat1 = new System.Drawing.StringFormat();
+            System.Drawing.StringFormat stringFormat2 = new System.Drawing.StringFormat();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.l_remaining_time = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.l_active_player = new System.Windows.Forms.Label();
             this.l_winner = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -43,8 +45,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.lb_white_chains = new System.Windows.Forms.ListBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
             this.hg_board = new AndantinoGUI.HexagonalGrid();
             this.flowLayoutPanel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -62,7 +62,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.l_remaining_time);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.l_active_player);
             this.groupBox1.Controls.Add(this.l_winner);
@@ -75,6 +75,26 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Informations";
+            // 
+            // l_remaining_time
+            // 
+            this.l_remaining_time.AutoSize = true;
+            this.l_remaining_time.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F);
+            this.l_remaining_time.Location = new System.Drawing.Point(169, 81);
+            this.l_remaining_time.Name = "l_remaining_time";
+            this.l_remaining_time.Size = new System.Drawing.Size(82, 20);
+            this.l_remaining_time.TabIndex = 6;
+            this.l_remaining_time.Text = "10:00:000";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Bold);
+            this.label5.Location = new System.Drawing.Point(13, 81);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(150, 20);
+            this.label5.TabIndex = 5;
+            this.label5.Text = "Remaining Time:";
             // 
             // l_active_player
             // 
@@ -150,7 +170,6 @@
             // 
             // b_undo
             // 
-            this.b_undo.Enabled = false;
             this.b_undo.Location = new System.Drawing.Point(6, 19);
             this.b_undo.Name = "b_undo";
             this.b_undo.Size = new System.Drawing.Size(121, 36);
@@ -199,26 +218,6 @@
             this.lb_white_chains.Size = new System.Drawing.Size(303, 284);
             this.lb_white_chains.TabIndex = 4;
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Bold);
-            this.label5.Location = new System.Drawing.Point(13, 81);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(150, 20);
-            this.label5.TabIndex = 5;
-            this.label5.Text = "Remaining Time:";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F);
-            this.label6.Location = new System.Drawing.Point(169, 81);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(73, 20);
-            this.label6.TabIndex = 6;
-            this.label6.Text = "10:00:00";
-            // 
             // hg_board
             // 
             this.hg_board.Location = new System.Drawing.Point(321, 12);
@@ -226,11 +225,11 @@
             this.hg_board.Size = new System.Drawing.Size(739, 637);
             this.hg_board.TabIndex = 1;
             this.hg_board.TextFont = new System.Drawing.Font("Arial", 8F);
-            stringFormat1.Alignment = System.Drawing.StringAlignment.Center;
-            stringFormat1.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
-            stringFormat1.LineAlignment = System.Drawing.StringAlignment.Center;
-            stringFormat1.Trimming = System.Drawing.StringTrimming.Character;
-            this.hg_board.TextFormat = stringFormat1;
+            stringFormat2.Alignment = System.Drawing.StringAlignment.Center;
+            stringFormat2.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
+            stringFormat2.LineAlignment = System.Drawing.StringAlignment.Center;
+            stringFormat2.Trimming = System.Drawing.StringTrimming.Character;
+            this.hg_board.TextFormat = stringFormat2;
             // 
             // Form1
             // 
@@ -270,7 +269,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ListBox lb_white_chains;
-        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label l_remaining_time;
         private System.Windows.Forms.Label label5;
     }
 }

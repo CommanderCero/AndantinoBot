@@ -26,7 +26,6 @@ namespace AndantinoGUI
         public ChainRowCollection HoveredChainRow { get; set; }
 
         public Stack<long> ElapsedTimeHistory { get; }
-        public Stopwatch AgentStopwatch { get; }
 
         public Form1()
         {
@@ -43,9 +42,6 @@ namespace AndantinoGUI
             lb_white_chains.MouseLeave += (sender, args) => OnHoverChain(sender, args, Game.WhiteChains);
 
             ElapsedTimeHistory = new Stack<long>();
-            AgentStopwatch = new Stopwatch();
-
-
         }
 
         private void OnClickHexagon(HexCoordinate c)
@@ -68,24 +64,43 @@ namespace AndantinoGUI
 
         private void OnUndoClick(object sender, EventArgs e)
         {
+            if(ElapsedTimeHistory.Count > 0)
+                ElapsedTimeHistory.Pop();
+            if (Game.CanUndo)
+                Game.UndoLastMove();
+
             NextPlay = null;
-
-            if (!Game.CanUndo)
-                return;
-
-            Game.UndoLastMove();
             UpdateRender();
+        }
+
+        private void CalculateNextMove()
+        {
+            var watch = new Stopwatch();
+            watch.Start();
+            var move = Agent.GetNextPlay(Game);
+            watch.Stop();
+
+            if(NextPlay == null)
+            {
+                ElapsedTimeHistory.Push(watch.ElapsedMilliseconds);
+            }
+            NextPlay = move;
         }
 
         private void OnNextMoveClick(object sender, EventArgs e)
         {
-            NextPlay = Agent.GetNextPlay(Game);
+            CalculateNextMove();
             UpdateRender();
         }
 
         private void OnAutoplayClick(object sender, EventArgs e)
         {
-            Game.PlaceStone(NextPlay ?? Agent.GetNextPlay(Game));
+            if(NextPlay == null)
+            {
+                CalculateNextMove();
+            }
+
+            Game.PlaceStone((HexCoordinate)NextPlay);
             NextPlay = null;
             UpdateRender();
         }
@@ -178,15 +193,16 @@ namespace AndantinoGUI
             l_active_player.Text = Game.ActivePlayer.ToString();
             l_winner.Text = Game.Winner.ToString();
 
-            // Enable\Disable undo button
-            b_undo.Enabled = Game.CanUndo;
-
             // Display chains
             if(refillChains)
             {
                 FillChainListBox(lb_black_chains, Game.BlackChains);
                 FillChainListBox(lb_white_chains, Game.WhiteChains);
             }
+
+            // Display total remaining time
+            var ts = TimeSpan.FromMinutes(10) - TimeSpan.FromMilliseconds(ElapsedTimeHistory.Sum());
+            l_remaining_time.Text = ts.ToString("mm\\:ss\\:fff");
         }
 
         private void FillChainListBox(ListBox listBox, ChainCollection collection)
