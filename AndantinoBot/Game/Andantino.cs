@@ -278,7 +278,7 @@ namespace AndantinoBot.Game
                             {
                                 return player;
                             }
-                            else if(enclosedStones != null)
+                            else if(enclosedStones != null && !EnclosedStones.Any(x => x.Value.Contains(enclosedStones[0])))
                             {
                                 EnclosedStones[player].AddRange(enclosedStones);
                                 moveEnclosedStones.Add(placementCord, enclosedStones);
@@ -294,7 +294,7 @@ namespace AndantinoBot.Game
                     {
                         return player;
                     }
-                    else if(enclosedStones != null)
+                    else if(enclosedStones != null && !EnclosedStones.Any(x => x.Value.Contains(enclosedStones[0])) && !moveEnclosedStones.ContainsKey(placementCord))
                     {
                         EnclosedStones[player].AddRange(enclosedStones);
                         moveEnclosedStones.Add(placementCord, enclosedStones);
