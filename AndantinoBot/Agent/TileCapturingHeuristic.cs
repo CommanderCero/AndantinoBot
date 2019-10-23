@@ -19,9 +19,9 @@ namespace AndantinoBot.Agent
         {
             // Calculate winning score, should get lower them ore turns the agent needs to win
             if (state.Winner == state.ActivePlayer)
-                return 1000000 - state.TurnCount;
+                return 1000000 - state.Turn;
             else if (state.Winner == state.ActivePlayer.GetOpponent())
-                return -1000000 + state.TurnCount;
+                return -1000000 + state.Turn;
             else if (state.IsGameOver)
                 return 0;
 

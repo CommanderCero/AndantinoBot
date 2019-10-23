@@ -28,7 +28,7 @@ namespace AndantinoBot.Search
         public HexCoordinate GetBestPlay(Andantino state, long millisecondsTimelimit)
         {
             var actions = state.GetValidPlacements();
-            var globalBestPlay = actions[0];
+            var globalBestIndex = 0;
             var depth = 1;
 
             var watch = new Stopwatch();
@@ -39,10 +39,23 @@ namespace AndantinoBot.Search
                 // When trying to multiply int.MinValue with a -1 we would get a overflow, so we have to reduce it by one
                 var alpha = int.MinValue + 1;
                 var beta = int.MaxValue;
-                var localMaxValue = int.MinValue + 1;
-                HexCoordinate localBestPlay = actions[0];
+
+                // First execute the best move from the last iteration
+                int localBestIndex = globalBestIndex;
+                state.PlaceStone(actions[globalBestIndex]);
+                var localMaxValue = -GetValue(state, depth - 1, -beta, -alpha, watch, millisecondsTimelimit);
+                state.UndoLastMove();
+                if (localMaxValue > alpha)
+                {
+                    alpha = localMaxValue;
+                }
+
+                // Calculate the values of the remaining moves, to check if there is a better move
                 for (var i = 0; i < actions.Length && watch.ElapsedMilliseconds < millisecondsTimelimit; i++)
                 {
+                    if (i == globalBestIndex)
+                        continue;
+
                     state.PlaceStone(actions[i]);
                     var value = -GetValue(state, depth - 1, -beta, -alpha, watch, millisecondsTimelimit);
                     state.UndoLastMove();
@@ -50,7 +63,7 @@ namespace AndantinoBot.Search
                     if (value > localMaxValue)
                     {
                         localMaxValue = value;
-                        localBestPlay = actions[i];
+                        localBestIndex = i;
                     }
                     if (localMaxValue > alpha)
                     {
@@ -58,15 +71,14 @@ namespace AndantinoBot.Search
                     }
                 }
 
+                globalBestIndex = localBestIndex;
                 if (watch.ElapsedMilliseconds > millisecondsTimelimit)
                 {
-                    Debug.WriteLine($"{depth}: Aborted search after {watch.ElapsedMilliseconds}ms. returning best play from depth {depth - 1}");
-                    return globalBestPlay;
+                    Debug.WriteLine($"{depth}: Aborted search after {watch.ElapsedMilliseconds}ms. returning best play {actions[globalBestIndex]}");
+                    return actions[globalBestIndex];
                 }
-                    
-
-                globalBestPlay = localBestPlay;
-                Debug.WriteLine($"{depth}. Time: {watch.ElapsedMilliseconds} Best Move: {globalBestPlay} Average Pruning: {averagePruningSteps:0.##} Evaluated Nodes: {evaluatedNodesCount}");
+                
+                Debug.WriteLine($"{depth}. Time: {watch.ElapsedMilliseconds} Best Move: {actions[globalBestIndex]} Average Pruning: {averagePruningSteps:0.##} Evaluated Nodes: {evaluatedNodesCount}");
                 evaluatedNodesCount = 0;
                 averagePruningSteps = 0;
                 averageCounter = 0;

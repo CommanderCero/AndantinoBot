@@ -46,7 +46,6 @@ namespace AndantinoBot.Search
             Size = size;
             entries = new TranspositionEntry[size, 2];
 
-            // ToDo is this bad for performance?
             // ToDo Can we avoid this loop somehow?
             for(var i = 0; i < Size; i++)
             {

@@ -15,10 +15,14 @@ namespace AndantinoBot
 
         public AndantinoAgent(IAndantinoHeuristic heuristic)
         {
-            AlphaBetaSearch = new AlphaBetaSearch(heuristic,  new TranspositionTable(30000000));
+            AlphaBetaSearch = new AlphaBetaSearch(heuristic,  new TranspositionTable(20000000));
         }
         public HexCoordinate GetNextPlay(Andantino state)
         {
+            // The first 2 turns do not matter, just return one action
+            if (state.Turn <= 2)
+                return state.GetValidPlacements()[0];
+
             var bestPlay = AlphaBetaSearch.GetBestPlay(state, 4000L);
             return bestPlay;
         }

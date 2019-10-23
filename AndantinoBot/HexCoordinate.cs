@@ -70,6 +70,16 @@ namespace AndantinoBot
         }
 
         #region Operators
+        public static bool operator ==(HexCoordinate left, HexCoordinate right)
+        {
+            return left.Q == right.Q && left.R == right.R;
+        }
+
+        public static bool operator !=(HexCoordinate left, HexCoordinate right)
+        {
+            return left.Q != right.Q || left.R == right.R;
+        }
+
         public static HexCoordinate operator +(HexCoordinate left, HexCoordinate right)
         {
             return new HexCoordinate(left.Q + right.Q, left.R + right.R);

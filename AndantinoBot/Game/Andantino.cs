@@ -21,14 +21,14 @@ namespace AndantinoBot.Game
         public bool IsGameOver { get; private set; }
         public bool IsFirstTurn { get; private set; } = true;
         public bool CanUndo => lastMoves.Count != 0;
-        public int TurnCount => lastMoves.Count;
+        public int Turn => lastMoves.Count + 1;
 
         public ChainCollection BlackChains { get; }
         public ChainCollection WhiteChains { get; }
 
         public Dictionary<Player, List<HexCoordinate>> EnclosedStones { get; }
-        private Dictionary<HexCoordinate, List<HexCoordinate>> moveEnclosedStones;
 
+        private readonly Dictionary<HexCoordinate, List<HexCoordinate>> moveEnclosedStones;
         private readonly Stack<HexCoordinate> lastMoves;
         private readonly HashSet<HexCoordinate> validPlacements;
 
