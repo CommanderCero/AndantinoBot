@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using AndantinoBot.Game;
 
 namespace AndantinoBot.Search
@@ -25,15 +26,15 @@ namespace AndantinoBot.Search
             this.transpositionTable = transpositionTable;
         }
 
-        public HexCoordinate GetBestPlay(Andantino state, long millisecondsTimelimit)
+        public IterativeDeepeningSearchResults GetBestPlay(Andantino state, long millisecondsTimelimit)
         {
+            var searchResults = new IterativeDeepeningSearchResults();
             var actions = state.GetValidPlacements();
             var globalBestIndex = 0;
-            var depth = 1;
 
             var watch = new Stopwatch();
             watch.Start();
-            while (true)
+            for (var depth = 1; watch.ElapsedMilliseconds < millisecondsTimelimit; depth++)
             {
                 // int.MinValue = -2147483648 and int.MaxValue = 2147483647
                 // When trying to multiply int.MinValue with a -1 we would get a overflow, so we have to reduce it by one
@@ -71,19 +72,21 @@ namespace AndantinoBot.Search
                     }
                 }
 
+                // Print debug informations
                 globalBestIndex = localBestIndex;
-                if (watch.ElapsedMilliseconds > millisecondsTimelimit)
-                {
-                    Debug.WriteLine($"{depth}: Aborted search after {watch.ElapsedMilliseconds}ms. returning best play {actions[globalBestIndex]}");
-                    return actions[globalBestIndex];
-                }
-                
-                Debug.WriteLine($"{depth}. Time: {watch.ElapsedMilliseconds} Best Move: {actions[globalBestIndex]} Average Pruning: {averagePruningSteps:0.##} Evaluated Nodes: {evaluatedNodesCount}");
+                Debug.WriteLine($"{depth}. Time: {watch.ElapsedMilliseconds} Best Move: {actions[globalBestIndex]} Value: {localMaxValue} Average Pruning: {averagePruningSteps:0.##} Evaluated Nodes: {evaluatedNodesCount}");
+
+                // Collect data for the search results
+                searchResults.AddResults(actions[globalBestIndex], localMaxValue, averagePruningSteps, evaluatedNodesCount);
+
+                // Reset counters
                 evaluatedNodesCount = 0;
                 averagePruningSteps = 0;
                 averageCounter = 0;
-                depth++;
             }
+
+            Debug.WriteLine($"Aborted search after {watch.ElapsedMilliseconds}ms. returning best play {actions[globalBestIndex]}");
+            return searchResults;
         }
 
         public int GetValue(Andantino state, int depth, int alpha, int beta, Stopwatch timer, long millisecondsTimelimit)

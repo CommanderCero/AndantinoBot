@@ -12,6 +12,7 @@ namespace AndantinoBot
     public class AndantinoAgent
     {
         public AlphaBetaSearch AlphaBetaSearch { get; set; }
+        public IterativeDeepeningSearchResults PreviousSearchResults { get; set; }
 
         public AndantinoAgent(IAndantinoHeuristic heuristic)
         {
@@ -23,8 +24,8 @@ namespace AndantinoBot
             if (state.Turn <= 2)
                 return state.GetValidPlacements()[0];
 
-            var bestPlay = AlphaBetaSearch.GetBestPlay(state, 4000L);
-            return bestPlay;
+            PreviousSearchResults = AlphaBetaSearch.GetBestPlay(state, 4000L);
+            return PreviousSearchResults.BestMove;
         }
     }
 }

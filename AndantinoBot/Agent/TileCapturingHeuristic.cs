@@ -9,12 +9,10 @@ using System.Windows.Forms;
 
 namespace AndantinoBot.Agent
 {
-    // TODO Featuregewichtung mit TD-Learning approximieren (TD-Leaf(lambda))
-    // Good things checklist
-    // 1. Many Long chains
-    // 2. Add random factor?
     public class TileCapturingHeuristic : IAndantinoHeuristic
     {
+        public Random Random = new Random();
+
         public int Evaluate(Andantino state)
         {
             // Calculate winning score, should get lower them ore turns the agent needs to win
