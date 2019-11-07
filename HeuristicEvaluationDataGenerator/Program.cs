@@ -188,7 +188,7 @@ namespace HeuristicEvaluationDataGenerator
             heuristicWriter.NextRecord();
 
             var random = new Random(threadID*2000);
-            Console.WriteLine($"{threadID}: Started collecting from turn {game.TurnCount}");
+            Console.WriteLine($"{threadID}: Started collecting from turn {game.Turn}");
 
             var newStateCounter = 0;
             var totalStateCounter = 0;
@@ -207,7 +207,7 @@ namespace HeuristicEvaluationDataGenerator
                     var hashCode = game.Board.GetLongHashCode();
                     if (!winCounter.ContainsKey(hashCode))
                     {
-                        var container = new StateHeuristicContainer() { TurnCount = game.TurnCount, StateHashCode = hashCode};
+                        var container = new StateHeuristicContainer() { TurnCount = game.Turn, StateHashCode = hashCode};
                         AddGameInformation(game, container);
                         AddChainLengthHeuristic(game, container);
                         AddCapturedTileHeuristic(game, container);

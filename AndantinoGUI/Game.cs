@@ -64,12 +64,18 @@ namespace AndantinoGUI
 
         private void OnUndoClick(object sender, EventArgs e)
         {
-            if(ElapsedTimeHistory.Count > 0)
-                ElapsedTimeHistory.Pop();
-            if (Game.CanUndo)
+            Agent.PreviousSearchResults = null;
+            if (NextPlay == null)
+            {
                 Game.UndoLastMove();
+                ElapsedTimeHistory.Pop();
+            }
+            else
+            {
+                NextPlay = null;
+                ElapsedTimeHistory.Pop();
+            }
 
-            NextPlay = null;
             UpdateRender();
         }
 
@@ -203,6 +209,19 @@ namespace AndantinoGUI
             // Display total remaining time
             var ts = TimeSpan.FromMinutes(10) - TimeSpan.FromMilliseconds(ElapsedTimeHistory.Sum());
             l_remaining_time.Text = ts.ToString("mm\\:ss\\:fff");
+
+            // Display Search Results
+            rtb_search_results.Text = "";
+            if(Agent.PreviousSearchResults != null)
+            {
+                var searchResults = Agent.PreviousSearchResults;
+                for(var i = 0; i < searchResults.BestMoves.Count; i++)
+                {
+                    var line = $"{i + 1}. Best Move: {searchResults.BestMoves[i]}     Value: {searchResults.BestMoveValues[i]}\n";
+
+                    rtb_search_results.Text += line;
+                }
+            }
         }
 
         private void FillChainListBox(ListBox listBox, ChainCollection collection)

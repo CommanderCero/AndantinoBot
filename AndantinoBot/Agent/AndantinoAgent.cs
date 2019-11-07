@@ -23,7 +23,7 @@ namespace AndantinoBot
             // The first 2 turns do not matter, just return one action
             if (state.Turn <= 2)
                 return state.GetValidPlacements()[0];
-
+            
             PreviousSearchResults = AlphaBetaSearch.GetBestPlay(state, 4000L);
             return PreviousSearchResults.BestMove;
         }

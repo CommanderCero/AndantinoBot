@@ -61,6 +61,12 @@ namespace AndantinoBot.Search
                     var value = -GetValue(state, depth - 1, -beta, -alpha, watch, millisecondsTimelimit);
                     state.UndoLastMove();
 
+                    // Time is up the value is useless
+                    if(watch.ElapsedMilliseconds > millisecondsTimelimit)
+                    {
+                        break;
+                    }
+
                     if (value > localMaxValue)
                     {
                         localMaxValue = value;

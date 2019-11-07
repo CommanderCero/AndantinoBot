@@ -32,6 +32,8 @@ namespace AndantinoBot.Agent
             blackScore += CalculateChainsScore(state, state.BlackChains.SRowChains);
 
             var chainScore = state.ActivePlayer == Player.Black ? blackScore - whiteScore : whiteScore - blackScore;
+
+            // Doesn't seem to have any effect, propably a too rare case
             var tileCaptureScore = state.EnclosedStones[state.ActivePlayer].Count() - state.EnclosedStones[state.ActivePlayer.GetOpponent()].Count();
             tileCaptureScore *= 16;
             return chainScore + tileCaptureScore;

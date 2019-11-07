@@ -28,7 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Drawing.StringFormat stringFormat2 = new System.Drawing.StringFormat();
+            this.components = new System.ComponentModel.Container();
+            System.Drawing.StringFormat stringFormat1 = new System.Drawing.StringFormat();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.l_remaining_time = new System.Windows.Forms.Label();
@@ -46,15 +47,20 @@
             this.label4 = new System.Windows.Forms.Label();
             this.lb_white_chains = new System.Windows.Forms.ListBox();
             this.hg_board = new AndantinoGUI.HexagonalGrid();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.rtb_search_results = new System.Windows.Forms.RichTextBox();
             this.flowLayoutPanel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.Controls.Add(this.groupBox1);
             this.flowLayoutPanel2.Controls.Add(this.groupBox2);
+            this.flowLayoutPanel2.Controls.Add(this.groupBox3);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(1066, 12);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(306, 637);
@@ -225,11 +231,34 @@
             this.hg_board.Size = new System.Drawing.Size(739, 637);
             this.hg_board.TabIndex = 1;
             this.hg_board.TextFont = new System.Drawing.Font("Arial", 8F);
-            stringFormat2.Alignment = System.Drawing.StringAlignment.Center;
-            stringFormat2.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
-            stringFormat2.LineAlignment = System.Drawing.StringAlignment.Center;
-            stringFormat2.Trimming = System.Drawing.StringTrimming.Character;
-            this.hg_board.TextFormat = stringFormat2;
+            stringFormat1.Alignment = System.Drawing.StringAlignment.Center;
+            stringFormat1.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.None;
+            stringFormat1.LineAlignment = System.Drawing.StringAlignment.Center;
+            stringFormat1.Trimming = System.Drawing.StringTrimming.Character;
+            this.hg_board.TextFormat = stringFormat1;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.rtb_search_results);
+            this.groupBox3.Location = new System.Drawing.Point(3, 233);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(293, 398);
+            this.groupBox3.TabIndex = 2;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Search Results";
+            // 
+            // rtb_search_results
+            // 
+            this.rtb_search_results.Location = new System.Drawing.Point(6, 19);
+            this.rtb_search_results.Name = "rtb_search_results";
+            this.rtb_search_results.Size = new System.Drawing.Size(281, 373);
+            this.rtb_search_results.TabIndex = 0;
+            this.rtb_search_results.Text = "";
             // 
             // Form1
             // 
@@ -248,6 +277,7 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -271,6 +301,9 @@
         private System.Windows.Forms.ListBox lb_white_chains;
         private System.Windows.Forms.Label l_remaining_time;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.RichTextBox rtb_search_results;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }
 
